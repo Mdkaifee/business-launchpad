@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- The build prerenders "/" and collects static files into dist/ (scripts/static-dist.mjs) so static hosts like Render can serve the site without a server.

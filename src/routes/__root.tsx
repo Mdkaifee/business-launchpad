@@ -78,18 +78,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Kestrel Co." },
+      { title: "aliyaabdullah.com" },
       {
         name: "description",
         content:
-          "Kestrel Co. — a single home for consulting, trading and services. Site under construction.",
+          "Welcome to aliyaabdullah.com — site under construction.",
       },
-      { name: "author", content: "Kestrel Co." },
-      { property: "og:title", content: "Kestrel Co." },
+      { name: "author", content: "aliyaabdullah.com" },
+      { property: "og:title", content: "aliyaabdullah.com" },
       {
         property: "og:description",
         content:
-          "A single home for consulting, trading and services. Site under construction.",
+          "Welcome to aliyaabdullah.com — site under construction.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

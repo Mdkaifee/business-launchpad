@@ -78,7 +78,7 @@ function HoardingPage() {
         <p className="rise text-hoarding/55 text-[11px] font-medium tracking-[0.32em] uppercase [animation-delay:60ms]">
           Under construction
         </p>
-        <h1 className="rise text-hoarding font-display mt-3 max-w-[20ch] text-balance text-[clamp(3.25rem,19vw,5.75rem)] leading-[0.95] [animation-delay:120ms] md:text-[clamp(4.5rem,8vw,7rem)] md:leading-[0.92]">
+        <h1 className="rise text-hoarding font-display mt-3 max-w-[20ch] text-balance text-[clamp(3.25rem,19vw,5.75rem)] leading-[1.1] [animation-delay:120ms] md:text-[clamp(4.5rem,8vw,7rem)] md:leading-[1.1]">
           Something
           <br />
           big is

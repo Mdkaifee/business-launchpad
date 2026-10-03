@@ -4,6 +4,10 @@ import { LAUNCH_DATE, getTimeLeft, pad, type TimeLeft } from "@/lib/countdown";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Hoarding board reads as one poster panel: a single centred column that keeps
+// its left-aligned signage grid at every width.
+const SHELL = "mx-auto w-full max-w-[1100px] px-6 md:px-10";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -57,7 +61,7 @@ function HoardingPage() {
   return (
     <div className="bg-paper text-hoarding font-body flex min-h-dvh w-full flex-col antialiased">
       {/* brand mark */}
-      <header className="rise flex items-center gap-3 px-6 pt-7">
+      <header className={`rise flex items-center gap-3 pt-7 ${SHELL}`}>
         <span className="bg-hoarding grid size-7 place-items-center rounded-[6px]">
           <span className="bg-signal block size-2.5 rounded-[2px]" />
         </span>
@@ -70,11 +74,11 @@ function HoardingPage() {
       <div className="hazard rise mt-6 h-3 w-full" />
 
       {/* hoarding headline */}
-      <main className="px-6 pt-10">
+      <main className={`pt-10 ${SHELL}`}>
         <p className="rise text-hoarding/55 text-[11px] font-medium tracking-[0.32em] uppercase [animation-delay:60ms]">
           Under construction
         </p>
-        <h1 className="rise text-hoarding font-display mt-3 max-w-[20ch] text-balance text-[clamp(3.25rem,20vw,6rem)] leading-[0.82] [animation-delay:120ms]">
+        <h1 className="rise text-hoarding font-display mt-3 max-w-[20ch] text-balance text-[clamp(3.25rem,20vw,6rem)] leading-[0.88] [animation-delay:120ms] md:text-[clamp(5rem,9vw,8.5rem)]">
           Something
           <br />
           big is
@@ -87,7 +91,7 @@ function HoardingPage() {
       </main>
 
       {/* countdown tiles */}
-      <section className="rise mt-10 px-6 [animation-delay:240ms]">
+      <section className={`rise mt-10 [animation-delay:240ms] ${SHELL}`}>
         <p className="text-hoarding/50 mb-4 text-[10px] font-medium tracking-[0.3em] uppercase">
           {left?.open ? "Now open" : "Opens in"}
         </p>
@@ -122,7 +126,7 @@ function HoardingPage() {
       </section>
 
       {/* email capture */}
-      <section className="rise mt-10 px-6 [animation-delay:300ms]">
+      <section className={`rise mt-10 [animation-delay:300ms] ${SHELL}`}>
         <label
           htmlFor="notify-email"
           className="text-hoarding/55 mb-2 block text-[11px] font-medium tracking-[0.24em] uppercase"
@@ -171,7 +175,7 @@ function HoardingPage() {
       </section>
 
       {/* footer */}
-      <footer className="rise mt-auto px-6 py-8 [animation-delay:360ms]">
+      <footer className={`rise mt-auto py-8 [animation-delay:360ms] ${SHELL}`}>
         <div className="bg-hoarding/10 mb-6 h-px w-full" />
         <div className="flex items-center justify-between gap-4">
           <a

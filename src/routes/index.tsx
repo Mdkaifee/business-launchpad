@@ -6,7 +6,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Hoarding board reads as one poster panel: a single centred column that keeps
 // its left-aligned signage grid at every width.
-const SHELL = "mx-auto w-full max-w-[1100px] px-6 md:px-10";
+const SHELL = "mx-auto w-full max-w-[820px] px-6 md:px-10";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -78,7 +78,7 @@ function HoardingPage() {
         <p className="rise text-hoarding/55 text-[11px] font-medium tracking-[0.32em] uppercase [animation-delay:60ms]">
           Under construction
         </p>
-        <h1 className="rise text-hoarding font-display mt-3 max-w-[20ch] text-balance text-[clamp(3.25rem,20vw,6rem)] leading-[0.88] [animation-delay:120ms] md:text-[clamp(5rem,9vw,8.5rem)]">
+        <h1 className="rise text-hoarding font-display mt-3 max-w-[20ch] text-balance text-[clamp(3.25rem,19vw,5.75rem)] leading-[0.95] [animation-delay:120ms] md:text-[clamp(4.5rem,8vw,7rem)] md:leading-[0.92]">
           Something
           <br />
           big is
@@ -106,7 +106,7 @@ function HoardingPage() {
               }
             >
               <span
-                className={`font-display tick block text-[clamp(1.9rem,9vw,2.6rem)] leading-none ${
+                className={`font-display tick block text-[clamp(1.9rem,9vw,2.6rem)] leading-none md:text-[3.1rem] ${
                   tile.signal ? "text-hoarding" : "text-paper"
                 }`}
                 style={{ animationDelay: `${index * 60}ms` }}

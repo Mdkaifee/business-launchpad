@@ -13,9 +13,8 @@
  * The :root and .dark blocks define the actual color values using oklch.
  * All colors MUST use oklch format.
  *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * Palette: "signal hoarding" — paper-white hoarding board, near-black ink,
+ * one high-visibility signal orange used sparingly.
  */
 
 @theme inline {
@@ -59,77 +58,94 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Hoarding board palette */
+  --color-hoarding: var(--hoarding);
+  --color-paper: var(--paper);
+  --color-signal: var(--signal);
+  --color-tile-edge: var(--tile-edge);
+  --font-display: "Anton", "Arial Narrow", sans-serif;
+  --font-body: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+
+  /* Brand tokens */
+  --hoarding: oklch(0.2126 0.0038 106.72);
+  --paper: oklch(0.9498 0.0086 84.57);
+  --signal: oklch(0.6823 0.2108 37.7);
+  --tile-edge: oklch(0.9498 0.0086 84.57 / 8%);
+
+  /* Semantic aliases (light hoarding board) */
+  --background: var(--paper);
+  --foreground: var(--hoarding);
+  --card: var(--paper);
+  --card-foreground: var(--hoarding);
+  --popover: var(--paper);
+  --popover-foreground: var(--hoarding);
+  --primary: var(--signal);
+  --primary-foreground: var(--hoarding);
+  --secondary: var(--hoarding);
+  --secondary-foreground: var(--paper);
+  --muted: oklch(0.9198 0.0086 84.57);
+  --muted-foreground: oklch(0.534 0.012 84.57);
+  --accent: var(--signal);
+  --accent-foreground: var(--hoarding);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.2126 0.0038 106.72 / 12%);
+  --input: oklch(0.2126 0.0038 106.72 / 18%);
+  --ring: var(--signal);
+  --chart-1: oklch(0.6823 0.2108 37.7);
+  --chart-2: oklch(0.2126 0.0038 106.72);
+  --chart-3: oklch(0.534 0.012 84.57);
+  --chart-4: oklch(0.9498 0.0086 84.57);
+  --chart-5: oklch(0.6 0.118 184.704);
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--hoarding);
+  --sidebar-primary: var(--signal);
+  --sidebar-primary-foreground: var(--hoarding);
+  --sidebar-accent: var(--signal);
+  --sidebar-accent-foreground: var(--hoarding);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--signal);
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
+  /* Hoarding board at night: ink ground, lit signal */
+  --background: var(--hoarding);
+  --foreground: var(--paper);
+  --card: var(--hoarding);
+  --card-foreground: var(--paper);
+  --popover: var(--hoarding);
+  --popover-foreground: var(--paper);
+  --primary: var(--signal);
+  --primary-foreground: var(--hoarding);
   --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --secondary-foreground: var(--paper);
   --muted: oklch(0.279 0.041 260.031);
   --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
+  --accent: var(--signal);
+  --accent-foreground: var(--hoarding);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
+  --border: oklch(0.9498 0.0086 84.57 / 12%);
+  --input: oklch(0.9498 0.0086 84.57 / 18%);
+  --ring: var(--signal);
+  --chart-1: oklch(0.6823 0.2108 37.7);
+  --chart-2: oklch(0.9498 0.0086 84.57);
+  --chart-3: oklch(0.704 0.04 256.788);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --sidebar: var(--hoarding);
+  --sidebar-foreground: var(--paper);
+  --sidebar-primary: var(--signal);
+  --sidebar-primary-foreground: var(--hoarding);
+  --sidebar-accent: var(--signal);
+  --sidebar-accent-foreground: var(--hoarding);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--signal);
 }
 
 @layer base {
@@ -140,5 +156,57 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/*
+ * Motion: slow, weighty reveals on load; countdown digits drop into place.
+ * Keyframes live unlayered so the reduced-motion override below always wins.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tick {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Diagonal hoarding hazard band — signal orange on ink. */
+@utility hazard {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-signal) 0 14px,
+    var(--color-hoarding) 14px 28px
+  );
+}
+
+@utility rise {
+  animation: rise 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@utility tick {
+  animation: tick 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .tick {
+    animation: none;
   }
 }

@@ -92,7 +92,7 @@ function HoardingPage() {
 
       {/* countdown tiles */}
       <section className={`rise mt-10 [animation-delay:240ms] ${SHELL}`}>
-        <p className="text-hoarding/50 mb-4 text-[10px] font-medium tracking-[0.3em] uppercase">
+        <p className="text-hoarding/60 mb-4 text-[10px] font-medium tracking-[0.3em] uppercase">
           {left?.open ? "Now open" : "Opens in"}
         </p>
         <div className="grid grid-cols-4 gap-2.5">
@@ -196,7 +196,7 @@ function HoardingPage() {
             </a>
           </div>
         </div>
-        <p className="text-hoarding/45 mt-4 text-[11px]">
+        <p className="text-hoarding/60 mt-4 text-[11px]">
           © 2026 Kestrel Co. — all rights reserved.
         </p>
       </footer>

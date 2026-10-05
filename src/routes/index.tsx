@@ -91,7 +91,7 @@ const services = [
 const stats = [
   { label: "Service areas", value: "12+" },
   { label: "Business categories", value: "Multi" },
-  { label: "Launch stage", value: "Build" },
+  { label: "Project types", value: "All" },
 ];
 
 const capabilities = [
@@ -262,20 +262,13 @@ function WelcomePage() {
                   </div>
 
                   <div className="mt-8 rounded-2xl bg-[#17201c] p-5 text-white">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-black tracking-[0.18em] text-white/50 uppercase">
-                          Launch status
-                        </p>
-                        <p className="mt-2 text-sm font-semibold text-white/78">
-                          Preparing services, partners, and project intake.
-                        </p>
-                      </div>
-                      <span className="text-2xl font-black">72%</span>
-                    </div>
-                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/12">
-                      <div className="h-full w-[72%] rounded-full bg-[#ff7438]" />
-                    </div>
+                    <p className="text-xs font-black tracking-[0.18em] text-white/50 uppercase">
+                      Opening soon
+                    </p>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-white/78">
+                      Service intake and partner coordination are being prepared
+                      for a smooth first release.
+                    </p>
                   </div>
                 </div>
               </div>

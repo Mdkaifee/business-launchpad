@@ -196,6 +196,14 @@
   );
 }
 
+@utility site-grid {
+  background-image:
+    linear-gradient(oklch(0.2126 0.0038 106.72 / 8%) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.2126 0.0038 106.72 / 8%) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 86%);
+}
+
 @utility rise {
   animation: rise 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }

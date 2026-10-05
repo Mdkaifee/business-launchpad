@@ -82,14 +82,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Welcome to aliyaabdullah.com — site under construction.",
+          "Welcome to aliyaabdullah.com - site under construction.",
       },
       { name: "author", content: "aliyaabdullah.com" },
       { property: "og:title", content: "aliyaabdullah.com" },
       {
         property: "og:description",
         content:
-          "Welcome to aliyaabdullah.com — site under construction.",
+          "Welcome to aliyaabdullah.com - site under construction.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

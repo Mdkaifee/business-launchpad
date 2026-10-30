@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -78,21 +79,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "aliyaabdullah.com" },
+      { title: "AL-MADAAR HOLDINGS | Trading, Contracting & IT Services" },
       {
         name: "description",
         content:
-          "Welcome to aliyaabdullah.com - site under construction.",
+          "Integrated corporate solutions across Trading, General Contracting, and Enterprise IT & AI Services. Built on precision, accountability, and international excellence.",
       },
-      { name: "author", content: "aliyaabdullah.com" },
-      { property: "og:title", content: "aliyaabdullah.com" },
+      { name: "author", content: "AL-MADAAR HOLDINGS" },
+      { property: "og:title", content: "AL-MADAAR HOLDINGS | Trading, Contracting & IT Services" },
       {
         property: "og:description",
         content:
-          "Welcome to aliyaabdullah.com - site under construction.",
+          "Integrated corporate solutions across Trading, General Contracting, and Enterprise IT & AI Services.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       {
@@ -110,7 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap",
       },
     ],
   }),
@@ -141,6 +142,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Toaster position="top-right" />
     </QueryClientProvider>
   );
 }

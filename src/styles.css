@@ -44,108 +44,65 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Hoarding board palette */
-  --color-hoarding: var(--hoarding);
-  --color-paper: var(--paper);
-  --color-signal: var(--signal);
-  --color-tile-edge: var(--tile-edge);
-  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* MD Attire Luxury Theme Colors */
+  --color-ivory: #F8F6F2;
+  --color-cream: #F1E9DD;
+  --color-beige: #D8C6B2;
+  --color-deep-brown: #2B211B;
+  --color-taupe: #8B7766;
+  --color-soft-border: #E5DCD1;
+
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Plus Jakarta Sans", "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
-  /* Brand tokens */
-  --hoarding: oklch(0.2126 0.0038 106.72);
-  --paper: oklch(0.9498 0.0086 84.57);
-  --signal: oklch(0.6823 0.2108 37.7);
-  --tile-edge: oklch(0.9498 0.0086 84.57 / 8%);
-
-  /* Semantic aliases (light hoarding board) */
-  --background: var(--paper);
-  --foreground: var(--hoarding);
-  --card: var(--paper);
-  --card-foreground: var(--hoarding);
-  --popover: var(--paper);
-  --popover-foreground: var(--hoarding);
-  --primary: var(--signal);
-  --primary-foreground: var(--hoarding);
-  --secondary: var(--hoarding);
-  --secondary-foreground: var(--paper);
-  --muted: oklch(0.9198 0.0086 84.57);
-  --muted-foreground: oklch(0.534 0.012 84.57);
-  --accent: var(--signal);
-  --accent-foreground: var(--hoarding);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.2126 0.0038 106.72 / 12%);
-  --input: oklch(0.2126 0.0038 106.72 / 18%);
-  --ring: var(--signal);
-  --chart-1: oklch(0.6823 0.2108 37.7);
-  --chart-2: oklch(0.2126 0.0038 106.72);
-  --chart-3: oklch(0.534 0.012 84.57);
-  --chart-4: oklch(0.9498 0.0086 84.57);
-  --chart-5: oklch(0.6 0.118 184.704);
-  --sidebar: var(--paper);
-  --sidebar-foreground: var(--hoarding);
-  --sidebar-primary: var(--signal);
-  --sidebar-primary-foreground: var(--hoarding);
-  --sidebar-accent: var(--signal);
-  --sidebar-accent-foreground: var(--hoarding);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--signal);
+  /* MD Attire Reference Palette */
+  --background: #F8F6F2;
+  --foreground: #2B211B;
+  --card: #FFFFFF;
+  --card-foreground: #2B211B;
+  --popover: #F8F6F2;
+  --popover-foreground: #2B211B;
+  --primary: #2B211B;
+  --primary-foreground: #F8F6F2;
+  --secondary: #F1E9DD;
+  --secondary-foreground: #2B211B;
+  --muted: #F1E9DD;
+  --muted-foreground: #8B7766;
+  --accent: #D8C6B2;
+  --accent-foreground: #2B211B;
+  --destructive: #A33A2B;
+  --destructive-foreground: #F8F6F2;
+  --border: #E5DCD1;
+  --input: #E5DCD1;
+  --ring: #2B211B;
 }
 
 .dark {
-  /* Hoarding board at night: ink ground, lit signal */
-  --background: var(--hoarding);
-  --foreground: var(--paper);
-  --card: var(--hoarding);
-  --card-foreground: var(--paper);
-  --popover: var(--hoarding);
-  --popover-foreground: var(--paper);
-  --primary: var(--signal);
-  --primary-foreground: var(--hoarding);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: var(--paper);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: var(--signal);
-  --accent-foreground: var(--hoarding);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.9498 0.0086 84.57 / 12%);
-  --input: oklch(0.9498 0.0086 84.57 / 18%);
-  --ring: var(--signal);
-  --chart-1: oklch(0.6823 0.2108 37.7);
-  --chart-2: oklch(0.9498 0.0086 84.57);
-  --chart-3: oklch(0.704 0.04 256.788);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: var(--hoarding);
-  --sidebar-foreground: var(--paper);
-  --sidebar-primary: var(--signal);
-  --sidebar-primary-foreground: var(--hoarding);
-  --sidebar-accent: var(--signal);
-  --sidebar-accent-foreground: var(--hoarding);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--signal);
+  --background: #1C1613;
+  --foreground: #F8F6F2;
+  --card: #241D18;
+  --card-foreground: #F8F6F2;
+  --popover: #241D18;
+  --popover-foreground: #F8F6F2;
+  --primary: #D8C6B2;
+  --primary-foreground: #1C1613;
+  --secondary: #2B211B;
+  --secondary-foreground: #F8F6F2;
+  --muted: #2B211B;
+  --muted-foreground: #B5A496;
+  --accent: #D8C6B2;
+  --accent-foreground: #1C1613;
+  --destructive: #C44E3D;
+  --destructive-foreground: #F8F6F2;
+  --border: #3A2F27;
+  --input: #3A2F27;
+  --ring: #D8C6B2;
 }
 
 @layer base {
@@ -187,42 +144,41 @@
   }
 }
 
-/* Diagonal hoarding hazard band — signal orange on ink. */
-@utility hazard {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--color-signal) 0 14px,
-    var(--color-hoarding) 14px 28px
-  );
+@utility luxury-grid {
+  background-image:
+    linear-gradient(#2B211B0a 1px, transparent 1px),
+    linear-gradient(90deg, #2B211B0a 1px, transparent 1px);
+  background-size: 64px 64px;
 }
 
-@utility site-grid {
-  background-image:
-    linear-gradient(oklch(0.2126 0.0038 106.72 / 8%) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.2126 0.0038 106.72 / 8%) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: linear-gradient(to bottom, black, transparent 86%);
-}
-
-@utility modern-grid {
-  background-image:
-    linear-gradient(oklch(0.24 0.01 150 / 5%) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.24 0.01 150 / 5%) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: linear-gradient(to bottom, black, transparent 78%);
+@utility font-serif-heading {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
 }
 
 @utility rise {
   animation: rise 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-@utility tick {
-  animation: tick 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+@utility luxury-shadow {
+  box-shadow: 0 20px 40px -15px rgba(43, 33, 27, 0.08);
+}
+
+@utility luxury-border {
+  border-color: #E5DCD1;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: #D8C6B2;
+  color: #2B211B;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rise,
-  .tick {
+  .rise {
     animation: none;
   }
 }

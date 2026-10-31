@@ -19,7 +19,7 @@ export interface FormPayload {
 const REQUEST_TIMEOUT_MS = 60_000; // Render free instances can take ~50s to wake up.
 
 export function getSubmitUrl(): string | null {
-  const base = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+  const base = (import.meta.env["VITE_API_URL"] as string | undefined)?.trim();
   if (!base) return null;
   return `${base.replace(/\/+$/, "")}/api/submit`;
 }

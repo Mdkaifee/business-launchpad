@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 
 /** Counts up to `value` the first time it scrolls into view. Renders the final value before hydration. */
-export function Counter({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
+export function Counter({
+  value,
+  prefix = "",
+  suffix = "",
+}: {
+  value: number;
+  prefix?: string | undefined;
+  suffix?: string | undefined;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState(value);
 

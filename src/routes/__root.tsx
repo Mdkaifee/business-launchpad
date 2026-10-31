@@ -79,18 +79,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AL-MADAAR HOLDINGS | Trading, Contracting & IT Services" },
+      { title: "aliyaabdullah.com | Trading, Contracting & IT Services" },
       {
         name: "description",
         content:
-          "Integrated corporate solutions across Trading, General Contracting, and Enterprise IT & AI Services. Built on precision, accountability, and international excellence.",
+          "aliyaabdullah.com — one accountable operator for global trading, general contracting, and enterprise IT & AI services.",
       },
-      { name: "author", content: "AL-MADAAR HOLDINGS" },
-      { property: "og:title", content: "AL-MADAAR HOLDINGS | Trading, Contracting & IT Services" },
+      { name: "author", content: "aliyaabdullah.com" },
+      { property: "og:title", content: "aliyaabdullah.com | Trading, Contracting & IT Services" },
       {
         property: "og:description",
         content:
-          "Integrated corporate solutions across Trading, General Contracting, and Enterprise IT & AI Services.",
+          "One accountable operator for global trading, general contracting, and enterprise IT & AI services.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -100,9 +100,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", type: "image/png", href: "/favicon.png?v=2" },
-      { rel: "shortcut icon", type: "image/png", href: "/favicon.png?v=2" },
-      { rel: "apple-touch-icon", href: "/favicon.png?v=2" },
+      { rel: "icon", type: "image/png", href: "/favicon.png?v=3" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=3" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",
@@ -111,7 +110,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,300;1,400&family=Manrope:wght@400;500;600;700;800&display=swap",
       },
     ],
   }),

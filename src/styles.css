@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system — "Gilded dusk".
- * Warm ivory paper, deep espresso ink, one champagne-gold accent.
+ * Design system — "Emerald & silver", taken from the aliyaabdullah.com logo.
+ * Near-black ink, pearl light sections, emerald accent with polished silver.
  * Display: Cormorant Garamond. Body: Manrope. All colours in oklch.
  */
 
@@ -43,9 +43,11 @@
   --color-ink-foreground: var(--ink-foreground);
   --color-ink-muted: var(--ink-muted);
   --color-ink-border: var(--ink-border);
-  --color-gold: var(--gold);
-  --color-gold-light: var(--gold-light);
-  --color-gold-deep: var(--gold-deep);
+  --color-emerald: var(--emerald);
+  --color-emerald-light: var(--emerald-light);
+  --color-emerald-deep: var(--emerald-deep);
+  --color-silver: var(--silver);
+  --color-silver-deep: var(--silver-deep);
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Manrope", system-ui, sans-serif;
@@ -54,74 +56,76 @@
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(0.975 0.009 85);
-  --foreground: oklch(0.21 0.014 55);
-  --card: oklch(0.993 0.004 85);
-  --card-foreground: oklch(0.21 0.014 55);
-  --popover: oklch(0.985 0.006 85);
-  --popover-foreground: oklch(0.21 0.014 55);
-  --primary: oklch(0.21 0.014 55);
-  --primary-foreground: oklch(0.975 0.009 85);
-  --secondary: oklch(0.945 0.016 80);
-  --secondary-foreground: oklch(0.21 0.014 55);
-  --muted: oklch(0.945 0.016 80);
-  --muted-foreground: oklch(0.5 0.025 60);
-  --accent: oklch(0.76 0.115 78);
-  --accent-foreground: oklch(0.2 0.014 55);
-  --destructive: oklch(0.55 0.17 30);
-  --destructive-foreground: oklch(0.975 0.009 85);
-  --border: oklch(0.885 0.02 78);
-  --input: oklch(0.885 0.02 78);
-  --ring: oklch(0.7 0.11 72);
+  --background: oklch(0.975 0.004 165);
+  --foreground: oklch(0.17 0.01 220);
+  --card: oklch(0.995 0.002 165);
+  --card-foreground: oklch(0.17 0.01 220);
+  --popover: oklch(0.99 0.003 165);
+  --popover-foreground: oklch(0.17 0.01 220);
+  --primary: oklch(0.17 0.01 220);
+  --primary-foreground: oklch(0.975 0.004 165);
+  --secondary: oklch(0.945 0.008 165);
+  --secondary-foreground: oklch(0.17 0.01 220);
+  --muted: oklch(0.945 0.008 165);
+  --muted-foreground: oklch(0.47 0.015 200);
+  --accent: oklch(0.58 0.15 156);
+  --accent-foreground: oklch(0.99 0.003 165);
+  --destructive: oklch(0.55 0.19 27);
+  --destructive-foreground: oklch(0.99 0.003 165);
+  --border: oklch(0.895 0.01 170);
+  --input: oklch(0.895 0.01 170);
+  --ring: oklch(0.58 0.15 156);
 
-  --ink: oklch(0.17 0.012 55);
-  --ink-soft: oklch(0.23 0.014 55);
-  --ink-foreground: oklch(0.96 0.012 85);
-  --ink-muted: oklch(0.74 0.03 75);
-  --ink-border: oklch(0.32 0.016 60);
-  --gold: oklch(0.76 0.115 78);
-  --gold-light: oklch(0.89 0.075 88);
-  --gold-deep: oklch(0.6 0.11 62);
+  --ink: oklch(0.155 0.01 220);
+  --ink-soft: oklch(0.205 0.012 200);
+  --ink-foreground: oklch(0.965 0.004 165);
+  --ink-muted: oklch(0.73 0.012 190);
+  --ink-border: oklch(0.3 0.016 180);
+  --emerald: oklch(0.6 0.15 156);
+  --emerald-light: oklch(0.76 0.15 156);
+  --emerald-deep: oklch(0.42 0.11 158);
+  --silver: oklch(0.88 0.006 220);
+  --silver-deep: oklch(0.66 0.01 220);
 
-  --gradient-gold: linear-gradient(115deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-deep) 100%);
-  --gradient-gold-shimmer: linear-gradient(
+  --gradient-brand: linear-gradient(115deg, var(--silver) 0%, var(--emerald-light) 50%, var(--emerald) 100%);
+  --gradient-brand-shimmer: linear-gradient(
     100deg,
-    var(--gold-deep) 0%,
-    var(--gold) 25%,
-    var(--gold-light) 50%,
-    var(--gold) 75%,
-    var(--gold-deep) 100%
+    var(--emerald) 0%,
+    var(--emerald-light) 22%,
+    var(--silver) 45%,
+    var(--emerald-light) 70%,
+    var(--emerald) 100%
   );
   --gradient-hero: linear-gradient(
     180deg,
-    color-mix(in oklab, var(--ink) 55%, transparent) 0%,
+    color-mix(in oklab, var(--ink) 60%, transparent) 0%,
     color-mix(in oklab, var(--ink) 35%, transparent) 40%,
-    color-mix(in oklab, var(--ink) 92%, transparent) 100%
+    color-mix(in oklab, var(--ink) 94%, transparent) 100%
   );
-  --shadow-elegant: 0 24px 60px -24px color-mix(in oklab, var(--ink) 28%, transparent);
-  --shadow-gold: 0 18px 50px -18px color-mix(in oklab, var(--gold) 60%, transparent);
+  --shadow-elegant: 0 24px 60px -24px color-mix(in oklab, var(--ink) 30%, transparent);
+  --shadow-glow: 0 18px 50px -16px color-mix(in oklab, var(--emerald) 65%, transparent);
 }
 
 .dark {
-  --background: oklch(0.17 0.012 55);
-  --foreground: oklch(0.96 0.012 85);
-  --card: oklch(0.21 0.014 55);
-  --card-foreground: oklch(0.96 0.012 85);
-  --popover: oklch(0.21 0.014 55);
-  --popover-foreground: oklch(0.96 0.012 85);
-  --primary: oklch(0.76 0.115 78);
-  --primary-foreground: oklch(0.17 0.012 55);
-  --secondary: oklch(0.25 0.014 55);
-  --secondary-foreground: oklch(0.96 0.012 85);
-  --muted: oklch(0.25 0.014 55);
-  --muted-foreground: oklch(0.74 0.03 75);
-  --accent: oklch(0.76 0.115 78);
-  --accent-foreground: oklch(0.17 0.012 55);
-  --destructive: oklch(0.6 0.17 30);
-  --destructive-foreground: oklch(0.96 0.012 85);
-  --border: oklch(0.32 0.016 60);
-  --input: oklch(0.32 0.016 60);
-  --ring: oklch(0.76 0.115 78);
+  --background: oklch(0.155 0.01 220);
+  --foreground: oklch(0.965 0.004 165);
+  --card: oklch(0.205 0.012 200);
+  --card-foreground: oklch(0.965 0.004 165);
+  --popover: oklch(0.205 0.012 200);
+  --popover-foreground: oklch(0.965 0.004 165);
+  --primary: oklch(0.6 0.15 156);
+  --primary-foreground: oklch(0.99 0.003 165);
+  --secondary: oklch(0.23 0.012 200);
+  --secondary-foreground: oklch(0.965 0.004 165);
+  --muted: oklch(0.23 0.012 200);
+  --muted-foreground: oklch(0.73 0.012 190);
+  --accent: oklch(0.6 0.15 156);
+  --accent-foreground: oklch(0.99 0.003 165);
+  --destructive: oklch(0.6 0.19 27);
+  --destructive-foreground: oklch(0.99 0.003 165);
+  --border: oklch(0.3 0.016 180);
+  --input: oklch(0.3 0.016 180);
+  --ring: oklch(0.6 0.15 156);
 }
 
 @layer base {
@@ -214,15 +218,15 @@
   animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-@utility text-gold-gradient {
-  background-image: var(--gradient-gold);
+@utility text-brand-gradient {
+  background-image: var(--gradient-brand);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-@utility text-gold-shimmer {
-  background-image: var(--gradient-gold-shimmer);
+@utility text-brand-shimmer {
+  background-image: var(--gradient-brand-shimmer);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -230,8 +234,8 @@
   animation: shimmer 6s linear infinite;
 }
 
-@utility bg-gold-gradient {
-  background-image: var(--gradient-gold);
+@utility bg-brand-gradient {
+  background-image: var(--gradient-brand);
 }
 
 @utility bg-hero-overlay {
@@ -242,8 +246,8 @@
   box-shadow: var(--shadow-elegant);
 }
 
-@utility shadow-gold {
-  box-shadow: var(--shadow-gold);
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
 }
 
 @utility luxury-grid {
@@ -305,7 +309,7 @@ html {
 }
 
 ::selection {
-  background-color: var(--gold-light);
+  background-color: var(--emerald-light);
   color: var(--ink);
 }
 
@@ -314,7 +318,7 @@ html {
     scroll-behavior: auto;
   }
   .rise,
-  .text-gold-shimmer,
+  .text-brand-shimmer,
   .animate-marquee,
   .animate-float,
   .animate-float-slow,

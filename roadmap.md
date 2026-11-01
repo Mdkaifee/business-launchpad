@@ -7,5 +7,5 @@
 - [x] FastAPI backend in `backend/` for Render: one endpoint, every form emails the owner's Google account
 - [x] Wire all site forms to that one endpoint
 - [x] Support email info@aliyaabdullah.com on the site
-- [ ] Real phone number and office address (waiting on user)
-- [ ] Set `VITE_API_URL` on the Render frontend once the backend URL exists (user, on Render)
+- [x] Real phone number and office locations (Makkah, Jeddah, Al Baha)
+- [ ] Deploy backend on Render and set `VITE_API_URL` on the frontend (user, on Render)

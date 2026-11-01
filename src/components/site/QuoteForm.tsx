@@ -125,7 +125,7 @@ export function QuoteForm({ values, onChange, idPrefix, onSent }: QuoteFormProps
           <label htmlFor={id("phone")} className={labelClass}>
             Phone *
           </label>
-          <input id={id("phone")} type="tel" required maxLength={40} value={values.phone} onChange={set("phone")} placeholder="+971 50 000 0000" className={fieldClass} />
+          <input id={id("phone")} type="tel" required maxLength={40} value={values.phone} onChange={set("phone")} placeholder="+966 5X XXX XXXX" className={fieldClass} />
         </div>
       </div>
 

@@ -20,9 +20,11 @@ import { ContactForm } from "../components/site/ContactForm";
 import { Counter } from "../components/site/Counter";
 import {
   CASE_STUDIES,
-  CONTACT_ADDRESS,
+  CONTACT_COUNTRY,
   CONTACT_EMAIL,
+  CONTACT_LOCATIONS_LINE,
   CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
   SERVICE_VERTICALS,
   SITE_NAME,
   SITE_TAGLINE,
@@ -782,9 +784,13 @@ function CorporateLandingPage() {
             </p>
             <div className="mt-10 space-y-4">
               {[
-                { icon: MapPin, title: "Office", lines: [CONTACT_ADDRESS] },
-                { icon: Phone, title: "Phone", lines: [CONTACT_PHONE, "Mon – Sat, 08:00 – 20:00 (GST)"] },
-                { icon: Mail, title: "Email", lines: [CONTACT_EMAIL] },
+                {
+                  icon: MapPin,
+                  title: "Offices",
+                  lines: [{ text: CONTACT_LOCATIONS_LINE }, { text: CONTACT_COUNTRY }],
+                },
+                { icon: Phone, title: "Phone", lines: [{ text: CONTACT_PHONE, href: CONTACT_PHONE_HREF }] },
+                { icon: Mail, title: "Email", lines: [{ text: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` }] },
               ].map((item) => (
                 <div key={item.title} className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 transition hover:border-emerald/40">
                   <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-ink text-emerald-light transition group-hover:bg-emerald group-hover:text-accent-foreground">
@@ -792,14 +798,14 @@ function CorporateLandingPage() {
                   </span>
                   <div>
                     <h3 className="text-[11px] font-bold tracking-[0.18em] uppercase">{item.title}</h3>
-                    {item.lines.map((line) => (
-                      <p key={line} className="mt-1 text-sm text-muted-foreground">
-                        {line === CONTACT_EMAIL ? (
-                          <a href={`mailto:${CONTACT_EMAIL}`} className="transition hover:text-emerald">
-                            {line}
+                    {item.lines.map((line: { text: string; href?: string }) => (
+                      <p key={line.text} className="mt-1 text-sm text-muted-foreground">
+                        {line.href ? (
+                          <a href={line.href} className="transition hover:text-emerald" dir="ltr">
+                            {line.text}
                           </a>
                         ) : (
-                          line
+                          line.text
                         )}
                       </p>
                     ))}
@@ -833,7 +839,12 @@ function CorporateLandingPage() {
                 One accountable team for international trading, general contracting and bespoke software engineering.
               </p>
               <div className="mt-6 space-y-1 text-sm text-ink-muted">
-                <p>{CONTACT_PHONE}</p>
+                <p>{CONTACT_LOCATIONS_LINE}, {CONTACT_COUNTRY}</p>
+                <p>
+                  <a href={CONTACT_PHONE_HREF} className="transition hover:text-ink-foreground">
+                    {CONTACT_PHONE}
+                  </a>
+                </p>
                 <p>
                   <a href={`mailto:${CONTACT_EMAIL}`} className="transition hover:text-ink-foreground">
                     {CONTACT_EMAIL}

@@ -21,12 +21,26 @@ Gmail sender account and issue its own OAuth refresh token.
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import html
 import logging
 import os
-import re
+from pathlib import Path
+import smtplib
+import ssl
 import time
+
+try:
+    from dotenv import load_dotenv
+
+    _env_file = Path(__file__).resolve().parent / ".env"
+    if _env_file.exists():
+        load_dotenv(_env_file)
+    else:
+        load_dotenv()
+except ImportError:
+    pass
 from collections import defaultdict, deque
 from datetime import datetime, timezone
 from email.message import EmailMessage
@@ -192,20 +206,9 @@ def quote_service(sub: Submission) -> str:
 
 
 def email_subject(sub: Submission) -> str:
-    """Always show the visitor name in the Gmail subject line.
-
-    Gmail itself chooses how to label the actual sending account in the inbox;
-    putting the name first makes it visible in the Subject regardless.
-    """
-    visitor_name = " ".join(sub.name.split())
-    if sub.form_type == "quote":
-        service = quote_service(sub)
-        topic = f"Quote request — {service}" if service else "Quote request"
-    elif sub.form_type in {"inquiry", "inquire"}:
-        topic = "Inquiry"
-    else:
-        topic = "Contact message"
-    return f"{visitor_name} — {topic}"
+    title = FORM_TITLES[sub.form_type]
+    topic = f" — {sub.subject}" if sub.subject else ""
+    return f"{sub.name}: {title}{topic}"
 
 
 def message_details(sub: Submission) -> list[tuple[str, str]]:
@@ -362,11 +365,9 @@ def build_message(
 </html>"""
 
     msg = EmailMessage()
-    # The display name is dynamic; the actual address is the Gmail-authorized
-    # sender/alias. An arbitrary website visitor's email cannot go in From.
-    msg["From"] = formataddr((name, sender))
-    msg["To"] = recipient
-    msg["Reply-To"] = formataddr((name, visitor_email))
+    msg["From"] = formataddr((sub.name, sender))
+    msg["To"] = ", ".join(recipients)
+    msg["Reply-To"] = formataddr((sub.name, str(sub.email)))
     msg["Subject"] = email_subject(sub)
     msg["X-Website-Form"] = "quote" if sub.form_type == "quote" else "contact"
     msg.set_content("\n".join(text_lines))
@@ -453,6 +454,29 @@ async def send_via_gmail(msg: EmailMessage, settings: dict[str, str]) -> None:
         )
 
 
+def _sync_send_smtp(msg: EmailMessage, host: str, port: int, user: str, password: str) -> None:
+    context = ssl.create_default_context()
+    if port == 465:
+        with smtplib.SMTP_SSL(host, port, context=context, timeout=20) as server:
+            if user and password:
+                server.login(user, password)
+            server.send_message(msg)
+    else:
+        with smtplib.SMTP(host, port, timeout=20) as server:
+            server.starttls(context=context)
+            if user and password:
+                server.login(user, password)
+            server.send_message(msg)
+
+
+async def send_via_smtp(msg: EmailMessage, host: str, port: int, user: str, password: str) -> None:
+    try:
+        await asyncio.to_thread(_sync_send_smtp, msg, host, port, user, password)
+    except Exception as exc:
+        log.error("SMTP send failed [%s:%s]: %s", host, port, exc)
+        raise HTTPException(status_code=502, detail="Email service failed to deliver message. Please try again later.")
+
+
 # --------------------------------------------------------------------------- #
 # Routes
 # --------------------------------------------------------------------------- #
@@ -464,17 +488,14 @@ async def root():
 
 @app.get("/health")
 async def health():
+    if env("SMTP_HOST") and env("SMTP_USER"):
+        return {"status": "ok", "email_configured": True, "provider": "smtp"}
     try:
         gmail_settings()
         configured = True
     except GmailConfigError:
         configured = False
-    sender = env("GMAIL_SENDER_EMAIL")
-    return {
-        "status": "ok",
-        "email_configured": configured,
-        "sender_separate_from_owner": bool(sender) and sender.casefold() != OWNER_EMAIL.casefold(),
-    }
+    return {"status": "ok", "email_configured": configured, "provider": "gmail_api"}
 
 
 @app.post("/api/submit")
@@ -489,6 +510,21 @@ async def submit(submission: Submission, request: Request):
             detail="Too many messages. Please try again in a few minutes.",
         )
 
+    # 1. Custom Domain SMTP (Hostinger / Google Workspace Relay) if configured
+    smtp_host = env("SMTP_HOST")
+    if smtp_host:
+        smtp_user = env("SMTP_USER")
+        smtp_pass = env("SMTP_PASSWORD")
+        smtp_port = int(env("SMTP_PORT", "465"))
+        from_email = env("SMTP_FROM_EMAIL", smtp_user or "info@aliyaabdullah.com")
+        recipients = split_csv(env("NOTIFY_TO_EMAIL", "aliaabdullah1211@gmail.com"))
+        support_email = env("SUPPORT_EMAIL", "info@aliyaabdullah.com")
+        msg = build_message(submission, from_email, recipients, support_email)
+        await send_via_smtp(msg, smtp_host, smtp_port, smtp_user, smtp_pass)
+        log.info("Sent %s submission via SMTP to %s", submission.form_type, ", ".join(recipients))
+        return {"ok": True}
+
+    # 2. Fallback to Gmail API OAuth
     try:
         settings = gmail_settings()
     except GmailConfigError as exc:

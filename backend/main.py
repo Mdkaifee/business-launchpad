@@ -72,7 +72,7 @@ def split_csv(value: str) -> list[str]:
 
 app = FastAPI(
     title=f"{SITE_NAME} forms API",
-    version="1.4.0",
+    version="1.5.0",
     docs_url=None,
     redoc_url=None,
 )
@@ -192,11 +192,20 @@ def quote_service(sub: Submission) -> str:
 
 
 def email_subject(sub: Submission) -> str:
-    """Stay consistent with the user's short, recognizable subjects."""
-    if sub.form_type != "quote":
-        return "Contact message"
-    service = quote_service(sub)
-    return f"Quote request — {service}" if service else "Quote request"
+    """Always show the visitor name in the Gmail subject line.
+
+    Gmail itself chooses how to label the actual sending account in the inbox;
+    putting the name first makes it visible in the Subject regardless.
+    """
+    visitor_name = " ".join(sub.name.split())
+    if sub.form_type == "quote":
+        service = quote_service(sub)
+        topic = f"Quote request — {service}" if service else "Quote request"
+    elif sub.form_type in {"inquiry", "inquire"}:
+        topic = "Inquiry"
+    else:
+        topic = "Contact message"
+    return f"{visitor_name} — {topic}"
 
 
 def message_details(sub: Submission) -> list[tuple[str, str]]:
@@ -213,7 +222,12 @@ def message_details(sub: Submission) -> list[tuple[str, str]]:
 
     if sub.subject:
         subject = sub.subject.strip()
-        skip = {email_subject(sub).casefold(), "quote request"}
+        skip = {
+            email_subject(sub).casefold(),
+            "quote request",
+            "contact message",
+            "inquiry",
+        }
         if sub.form_type == "quote":
             skip.add(quote_service(sub).casefold())
         if subject.casefold() not in skip:

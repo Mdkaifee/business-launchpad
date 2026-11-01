@@ -8,14 +8,15 @@ Render environment variables:
     GMAIL_CLIENT_SECRET   Google OAuth client secret
     GMAIL_REFRESH_TOKEN   Refresh token with the gmail.send scope
     GMAIL_SENDER_EMAIL    Email address of the authorized sending account
-    NOTIFY_TO_EMAIL       One owner inbox address (defaults to sender)
+    NOTIFY_TO_EMAIL       Not used: owner inbox is fixed below
     SUPPORT_EMAIL         Email shown in notification footer
     ALLOWED_ORIGINS       Comma-separated allowed website origins
     ALLOWED_ORIGIN_REGEX  Regex for any additional preview origins
 
 Important: The Gmail From display name is the customer's name, but the actual
 From address must be an authenticated Gmail account or verified send-as alias.
-Gmail may show "me" if the sender and recipient are the same account.
+To avoid Gmail showing "me" in the owner inbox, use a DIFFERENT authenticated
+Gmail sender account and issue its own OAuth refresh token.
 """
 
 from __future__ import annotations
@@ -41,6 +42,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger("aliyaabdullah-forms")
 
 SITE_NAME = "aliyaabdullah.com"
+# All submissions are delivered to this one inbox, regardless of which form.
+OWNER_EMAIL = "aliaabdullah1211@gmail.com"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
 
@@ -67,7 +70,7 @@ def split_csv(value: str) -> list[str]:
 
 app = FastAPI(
     title=f"{SITE_NAME} forms API",
-    version="1.1.0",
+    version="1.3.0",
     docs_url=None,
     redoc_url=None,
 )
@@ -194,14 +197,43 @@ def email_subject(sub: Submission) -> str:
 
 
 def summary_rows(sub: Submission) -> list[tuple[str, str]]:
-    rows: list[tuple[str, str]] = [("Name", sub.name), ("Email", str(sub.email))]
+    """One clear row per value; avoid repeating a quote's service/subject."""
+    rows: list[tuple[str, str]] = [
+        ("Name", sub.name),
+        ("Email", str(sub.email)),
+    ]
     if sub.phone:
         rows.append(("Phone", sub.phone))
     if sub.company:
         rows.append(("Company", sub.company))
-    if sub.subject:
+
+    if sub.form_type == "quote":
+        service = quote_service(sub)
+        if service:
+            rows.append(("Service", service))
+
+        if sub.subject:
+            subject = sub.subject.strip()
+            # The form often sends "Quote request — Trading Services" as its
+            # subject. Don't display that again when Service already says it.
+            duplicates = {
+                "quote request",
+                email_subject(sub).casefold(),
+                service.casefold(),
+            }
+            if subject.casefold() not in duplicates:
+                rows.append(("Additional subject", subject))
+    elif sub.subject:
         rows.append(("Subject", sub.subject))
-    rows.extend((key, value) for key, value in sub.details.items() if value.strip())
+
+    for key, value in sub.details.items():
+        if not value.strip():
+            continue
+        if sub.form_type == "quote" and key.strip().lower() in {
+            "service", "service type", "selected service"
+        }:
+            continue
+        rows.append((key.strip(), value))
     return rows
 
 
@@ -211,54 +243,150 @@ def build_message(
     recipient: str,
     support_email: str,
 ) -> EmailMessage:
+    """Mobile-first Gmail-friendly, single-column owner notification."""
     received = datetime.now(timezone.utc).strftime("%d %b %Y, %H:%M UTC")
     rows = summary_rows(sub)
     title = FORM_TITLES[sub.form_type]
 
-    text_lines = [f"New {title.lower()} from {SITE_NAME}", ""]
+    text_lines = [f"New {title.lower()}", f"Submitted by: {sub.name}", ""]
     text_lines += [f"{label}: {value}" for label, value in rows]
     text_lines += ["", "Message:", sub.message, "", f"Received: {received}"]
     if sub.page:
         text_lines.append(f"Page: {sub.page}")
     text_lines += [
         "",
-        f"Reply to this email to answer {sub.name} directly.",
+        f"Reply to this message to respond to {sub.name} ({sub.email}).",
+        f"Website: {SITE_NAME}",
         f"Support: {support_email}",
     ]
 
     esc = html.escape
-    row_html = "".join(
-        f'<tr><td style="padding:8px 12px;color:#6b7280;font-size:13px;white-space:nowrap;vertical-align:top">{esc(label)}</td>'
-        f'<td style="padding:8px 12px;color:#111827;font-size:14px;overflow-wrap:anywhere">{esc(value)}</td></tr>'
+    # A label is ABOVE its value on every screen: no side-by-side columns.
+    # word-break also handles long email addresses on narrow mobile screens.
+    field_rows = "".join(
+        '<tr><td style="padding:13px 0;border-bottom:1px solid #e9e9e3;'
+        'vertical-align:top;word-break:break-word;overflow-wrap:anywhere">'
+        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;'
+        'font-weight:700;letter-spacing:.3px;line-height:18px;color:#58655d">'
+        f'{esc(label)}</div>'
+        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;'
+        'line-height:24px;font-weight:400;color:#19271e;'
+        'white-space:normal;word-break:break-word;overflow-wrap:anywhere">'
+        f'{esc(value)}</div>'
+        '</td></tr>'
         for label, value in rows
     )
+
     message_html = esc(sub.message).replace("\n", "<br>")
-    page_html = f"<br>Page: {esc(sub.page)}" if sub.page else ""
+    page_html = (
+        '<tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;'
+        'font-size:12px;line-height:19px;color:#536159;'
+        'word-break:break-all;overflow-wrap:anywhere">'
+        f'Form page: {esc(sub.page)}</td></tr>'
+        if sub.page else ""
+    )
+    type_label = "QUOTE REQUEST" if sub.form_type == "quote" else "CONTACT MESSAGE"
+
+    # Table-based layout + inline styles are widely supported by Gmail.
+    # A light neutral palette avoids the low-contrast dark header shown in the
+    # earlier screenshots. Gmail can still apply its own dark-mode processing.
     html_body = f"""\
 <!doctype html>
-<html><body style="margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif">
-  <div style="max-width:600px;margin:0 auto;padding:24px">
-    <div style="background:#0b1512;border-radius:14px 14px 0 0;padding:20px 24px">
-      <div style="color:#d7dde0;font-size:12px;letter-spacing:2px;text-transform:uppercase">{esc(SITE_NAME)}</div>
-      <div style="color:#ffffff;font-size:22px;font-weight:bold;margin-top:6px">New {esc(title.lower())}</div>
-    </div>
-    <div style="border:1px solid #e5e7eb;border-top:4px solid #0f8a5f;border-radius:0 0 14px 14px;padding:20px 12px">
-      <table style="width:100%;border-collapse:collapse">{row_html}</table>
-      <div style="margin:18px 12px 0;padding:16px;background:#f3f6f5;border-radius:10px;color:#111827;font-size:14px;line-height:1.6">
-        {message_html}
-      </div>
-      <p style="margin:18px 12px 0;color:#6b7280;font-size:12px;line-height:1.6">
-        Received {esc(received)}{page_html}<br>
-        Hit <strong>Reply</strong> to answer {esc(sub.name)} directly.
-      </p>
-    </div>
-    <p style="color:#9ca3af;font-size:11px;text-align:center;margin-top:16px">{esc(SITE_NAME)} · {esc(support_email)}</p>
-  </div>
-</body></html>"""
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    @media only screen and (max-width: 480px) {{
+      .outer-padding {{ padding: 10px !important; }}
+      .inner-padding {{ padding: 20px !important; }}
+      .email-heading {{ font-size: 23px !important; line-height: 30px !important; }}
+    }}
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f5ef;width:100%;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+         width="100%" bgcolor="#f5f5ef"
+         style="width:100%;border-collapse:collapse;background-color:#f5f5ef">
+    <tr><td align="center" class="outer-padding" style="padding:20px 12px">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+             width="100%" bgcolor="#ffffff"
+             style="width:100%;max-width:600px;border-collapse:collapse;background-color:#ffffff;">
+        <tr><td bgcolor="#eef3ec" class="inner-padding"
+                style="padding:26px 28px 23px;border-top:5px solid #176342;
+                       background-color:#eef3ec;">
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;
+                      line-height:19px;font-weight:700;letter-spacing:1.5px;
+                      color:#176342;">ALIYAABDULLAH.COM</div>
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;
+                      line-height:18px;font-weight:700;letter-spacing:1px;
+                      margin-top:12px;color:#4b6655;">{type_label}</div>
+          <div class="email-heading" style="font-family:Arial,Helvetica,sans-serif;
+                      font-size:27px;line-height:34px;font-weight:700;
+                      margin-top:5px;color:#172b20;">
+            New {esc(title.lower())}
+          </div>
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;
+                      line-height:21px;margin-top:9px;color:#435748;
+                      word-break:break-word;overflow-wrap:anywhere;">
+            Submitted by <strong>{esc(sub.name)}</strong>
+          </div>
+        </td></tr>
+
+        <tr><td bgcolor="#ffffff" class="inner-padding"
+                style="padding:22px 28px 28px;background-color:#ffffff;">
+          <div style="font-family:Arial,Helvetica,sans-serif;
+                      font-size:15px;line-height:23px;font-weight:700;
+                      color:#172b20;">Submission details</div>
+          <table role="presentation" cellpadding="0" cellspacing="0"
+                 border="0" width="100%" style="width:100%;border-collapse:collapse;">
+            {field_rows}
+          </table>
+
+          <div style="font-family:Arial,Helvetica,sans-serif;
+                      font-size:15px;line-height:23px;font-weight:700;
+                      margin-top:25px;margin-bottom:10px;color:#172b20;">
+            Message
+          </div>
+          <table role="presentation" cellpadding="0" cellspacing="0"
+                 border="0" width="100%" bgcolor="#f0f3ed"
+                 style="width:100%;border-collapse:collapse;background-color:#f0f3ed;">
+            <tr><td style="padding:16px;font-family:Arial,Helvetica,sans-serif;
+                           font-size:15px;line-height:24px;color:#21352a;
+                           word-break:break-word;overflow-wrap:anywhere;">
+              {message_html}
+            </td></tr>
+          </table>
+
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                 width="100%" style="width:100%;margin-top:19px;border-collapse:collapse;">
+            <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;
+                           line-height:19px;color:#536159;">
+              Received {esc(received)}
+            </td></tr>
+            {page_html}
+          </table>
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;
+                      line-height:21px;margin-top:20px;color:#31513d;">
+            Tap <strong>Reply</strong> to respond to {esc(sub.name)}.
+          </div>
+        </td></tr>
+
+        <tr><td align="center" bgcolor="#f5f5ef"
+                style="padding:18px 12px;font-family:Arial,Helvetica,sans-serif;
+                       font-size:12px;line-height:19px;color:#536159;
+                       word-break:break-word;overflow-wrap:anywhere;">
+          {esc(SITE_NAME)} &middot; {esc(support_email)}
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
 
     msg = EmailMessage()
-    # Show ONLY the website visitor's name, never "via Aliyaabdullah".
-    # The actual email address is still the verified Gmail sender.
+    # Display ONLY the visitor's name. The email address itself must still
+    # be the authenticated Gmail sender (or a verified send-as alias).
     msg["From"] = formataddr((sub.name, sender))
     msg["To"] = recipient
     msg["Reply-To"] = formataddr((sub.name, str(sub.email)))
@@ -363,7 +491,12 @@ async def health():
         configured = True
     except GmailConfigError:
         configured = False
-    return {"status": "ok", "email_configured": configured}
+    sender = env("GMAIL_SENDER_EMAIL")
+    return {
+        "status": "ok",
+        "email_configured": configured,
+        "sender_separate_from_owner": bool(sender) and sender.casefold() != OWNER_EMAIL.casefold(),
+    }
 
 
 @app.post("/api/submit")
@@ -387,14 +520,16 @@ async def submit(submission: Submission, request: Request):
             detail="The form service isn't configured yet. Please email us directly.",
         )
 
-    # This backend sends every submission to ONE owner inbox.
-    recipient = env("NOTIFY_TO_EMAIL", settings["sender"])
-    if not recipient or "," in recipient or "\n" in recipient or "\r" in recipient:
-        log.error("NOTIFY_TO_EMAIL must contain exactly one valid inbox address")
-        raise HTTPException(status_code=503, detail="Form recipient is not configured correctly.")
+    # Fixed destination: do not let a stale Render NOTIFY_TO_EMAIL send
+    # customer information to a different recipient.
+    if settings["sender"].casefold() == OWNER_EMAIL.casefold():
+        log.warning(
+            "Sender and recipient are the same Gmail account; inbox may show 'me'. "
+            "Authorize a separate sending Gmail account with a new refresh token."
+        )
 
     support_email = env("SUPPORT_EMAIL", "info@aliyaabdullah.com")
-    msg = build_message(submission, settings["sender"], recipient, support_email)
+    msg = build_message(submission, settings["sender"], OWNER_EMAIL, support_email)
     await send_via_gmail(msg, settings)
     log.info("Sent %s submission to owner inbox", submission.form_type)
     return {"ok": True}

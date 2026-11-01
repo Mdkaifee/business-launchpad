@@ -1,6 +1,6 @@
 """aliyaabdullah.com form notification backend.
 
-POST /api/submit accepts quote and contact forms and sends notification emails
+POST /api/submit accepts quote, contact and inquiry forms and sends notification emails
 through the Gmail API with OAuth 2.0 refresh-token authentication.
 
 Render environment variables:
@@ -8,7 +8,7 @@ Render environment variables:
     GMAIL_CLIENT_SECRET   Google OAuth client secret
     GMAIL_REFRESH_TOKEN   Refresh token with the gmail.send scope
     GMAIL_SENDER_EMAIL    Email address of the authorized sending account
-    NOTIFY_TO_EMAIL       Not used: owner inbox is fixed below
+    NOTIFY_TO_EMAIL       Optional, ignored: owner inbox is fixed below
     SUPPORT_EMAIL         Email shown in notification footer
     ALLOWED_ORIGINS       Comma-separated allowed website origins
     ALLOWED_ORIGIN_REGEX  Regex for any additional preview origins
@@ -53,6 +53,8 @@ RATE_LIMIT_WINDOW_SECONDS = 10 * 60
 FORM_TITLES = {
     "quote": "Quote request",
     "contact": "Contact message",
+    "inquiry": "Contact message",
+    "inquire": "Contact message",
 }
 
 
@@ -70,7 +72,7 @@ def split_csv(value: str) -> list[str]:
 
 app = FastAPI(
     title=f"{SITE_NAME} forms API",
-    version="1.3.0",
+    version="1.4.0",
     docs_url=None,
     redoc_url=None,
 )
@@ -101,7 +103,7 @@ app.add_middleware(
 # --------------------------------------------------------------------------- #
 
 class Submission(BaseModel):
-    form_type: Literal["quote", "contact"]
+    form_type: Literal["quote", "contact", "inquiry", "inquire"]
     name: str = Field(min_length=1, max_length=120)
     email: EmailStr
     phone: Optional[str] = Field(default=None, max_length=40)
@@ -190,51 +192,51 @@ def quote_service(sub: Submission) -> str:
 
 
 def email_subject(sub: Submission) -> str:
-    if sub.form_type == "contact":
+    """Stay consistent with the user's short, recognizable subjects."""
+    if sub.form_type != "quote":
         return "Contact message"
     service = quote_service(sub)
     return f"Quote request — {service}" if service else "Quote request"
 
 
-def summary_rows(sub: Submission) -> list[tuple[str, str]]:
-    """One clear row per value; avoid repeating a quote's service/subject."""
-    rows: list[tuple[str, str]] = [
-        ("Name", sub.name),
-        ("Email", str(sub.email)),
-    ]
-    if sub.phone:
-        rows.append(("Phone", sub.phone))
-    if sub.company:
-        rows.append(("Company", sub.company))
+def message_details(sub: Submission) -> list[tuple[str, str]]:
+    """Compact contextual info placed AFTER the visitor's message.
+
+    The customer message is the email body, not a form data table.
+    """
+    details: list[tuple[str, str]] = []
 
     if sub.form_type == "quote":
         service = quote_service(sub)
         if service:
-            rows.append(("Service", service))
+            details.append(("Service", service))
 
-        if sub.subject:
-            subject = sub.subject.strip()
-            # The form often sends "Quote request — Trading Services" as its
-            # subject. Don't display that again when Service already says it.
-            duplicates = {
-                "quote request",
-                email_subject(sub).casefold(),
-                service.casefold(),
-            }
-            if subject.casefold() not in duplicates:
-                rows.append(("Additional subject", subject))
-    elif sub.subject:
-        rows.append(("Subject", sub.subject))
+    if sub.subject:
+        subject = sub.subject.strip()
+        skip = {email_subject(sub).casefold(), "quote request"}
+        if sub.form_type == "quote":
+            skip.add(quote_service(sub).casefold())
+        if subject.casefold() not in skip:
+            details.append(("Regarding", subject))
 
+    if sub.company:
+        details.append(("Company", sub.company))
+    if sub.phone:
+        details.append(("Phone", sub.phone))
+
+    service_keys = {"service", "service type", "selected service"}
     for key, value in sub.details.items():
-        if not value.strip():
+        clean_key = " ".join(key.split())
+        clean_value = str(value).strip()
+        if not clean_value:
             continue
-        if sub.form_type == "quote" and key.strip().lower() in {
-            "service", "service type", "selected service"
-        }:
+        if sub.form_type == "quote" and clean_key.lower() in service_keys:
             continue
-        rows.append((key.strip(), value))
-    return rows
+        # Do not repeat keys already explicitly displayed.
+        if clean_key.lower() in {"company", "phone", "name", "email"}:
+            continue
+        details.append((clean_key, clean_value))
+    return details
 
 
 def build_message(
@@ -243,140 +245,101 @@ def build_message(
     recipient: str,
     support_email: str,
 ) -> EmailMessage:
-    """Mobile-first Gmail-friendly, single-column owner notification."""
-    received = datetime.now(timezone.utc).strftime("%d %b %Y, %H:%M UTC")
-    rows = summary_rows(sub)
-    title = FORM_TITLES[sub.form_type]
+    """Make both quote and inquiry notifications read like personal emails.
 
-    text_lines = [f"New {title.lower()}", f"Submitted by: {sub.name}", ""]
-    text_lines += [f"{label}: {value}" for label, value in rows]
-    text_lines += ["", "Message:", sub.message, "", f"Received: {received}"]
-    if sub.page:
-        text_lines.append(f"Page: {sub.page}")
+    The actual From email must be an authorized Gmail address (NOT the
+    unverified visitor). Their name is the display name and Reply-To routes
+    the owner's Reply to their submitted email address.
+    """
+    now = datetime.now(timezone.utc).strftime("%d %b %Y at %H:%M UTC")
+    name = sub.name
+    visitor_email = str(sub.email)
+    details = message_details(sub)
+
+    # Start the plain-text part with the actual visitor's words. Gmail's inbox
+    # preview should show their message rather than "New form submission".
+    text_lines = [
+        sub.message,
+        "",
+        f"— {name}",
+        visitor_email,
+    ]
+    if details:
+        text_lines += ["", "-----", *[f"{label}: {value}" for label, value in details]]
     text_lines += [
         "",
-        f"Reply to this message to respond to {sub.name} ({sub.email}).",
-        f"Website: {SITE_NAME}",
-        f"Support: {support_email}",
+        "-----",
+        f"Sent through {SITE_NAME} on {now}.",
+        f"Reply to this email to contact {name} directly.",
     ]
 
     esc = html.escape
-    # A label is ABOVE its value on every screen: no side-by-side columns.
-    # word-break also handles long email addresses on narrow mobile screens.
-    field_rows = "".join(
-        '<tr><td style="padding:13px 0;border-bottom:1px solid #e9e9e3;'
-        'vertical-align:top;word-break:break-word;overflow-wrap:anywhere">'
-        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;'
-        'font-weight:700;letter-spacing:.3px;line-height:18px;color:#58655d">'
-        f'{esc(label)}</div>'
-        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;'
-        'line-height:24px;font-weight:400;color:#19271e;'
-        'white-space:normal;word-break:break-word;overflow-wrap:anywhere">'
-        f'{esc(value)}</div>'
-        '</td></tr>'
-        for label, value in rows
+    # Never interpolate customer text directly into HTML; escape first.
+    message_html = esc(sub.message).replace("\r\n", "\n").replace("\n", "<br>")
+    contact_email = esc(visitor_email, quote=True)
+    name_html = esc(name)
+    detail_rows = "".join(
+        '<tr><td style="padding:7px 0 1px;color:#737973;'
+        'font-size:12px;font-family:Arial,sans-serif;">'
+        f'{esc(label)}</td></tr>'
+        '<tr><td style="padding:0 0 10px;color:#27352d;font-size:14px;'
+        'line-height:21px;word-break:break-word;overflow-wrap:anywhere;'
+        'font-family:Arial,sans-serif;">'
+        f'{esc(value)}</td></tr>'
+        for label, value in details
     )
 
-    message_html = esc(sub.message).replace("\n", "<br>")
-    page_html = (
-        '<tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;'
-        'font-size:12px;line-height:19px;color:#536159;'
-        'word-break:break-all;overflow-wrap:anywhere">'
-        f'Form page: {esc(sub.page)}</td></tr>'
-        if sub.page else ""
+    details_html = (
+        '<tr><td style="padding:18px 0 0">'
+        '<div style="border-top:1px solid #e6eae5;padding-top:15px;'
+        'font:600 12px Arial,sans-serif;letter-spacing:.3px;'
+        'color:#5c685f">'
+        + ("QUOTE DETAILS" if sub.form_type == "quote" else "MESSAGE DETAILS")
+        + '</div>'
+        '<table role="presentation" cellspacing="0" cellpadding="0" border="0" '
+        'width="100%" style="border-collapse:collapse;width:100%;margin-top:7px">'
+        + detail_rows + '</table></td></tr>'
+        if details else ""
     )
-    type_label = "QUOTE REQUEST" if sub.form_type == "quote" else "CONTACT MESSAGE"
 
-    # Table-based layout + inline styles are widely supported by Gmail.
-    # A light neutral palette avoids the low-contrast dark header shown in the
-    # earlier screenshots. Gmail can still apply its own dark-mode processing.
+    # Neutral, single-column message styling. It intentionally resembles a
+    # normal correspondence more than a website form or an admin dashboard.
     html_body = f"""\
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    @media only screen and (max-width: 480px) {{
-      .outer-padding {{ padding: 10px !important; }}
-      .inner-padding {{ padding: 20px !important; }}
-      .email-heading {{ font-size: 23px !important; line-height: 30px !important; }}
-    }}
-  </style>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f5ef;width:100%;">
+<body style="margin:0;padding:0;background-color:#ffffff;color:#202a22;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-         width="100%" bgcolor="#f5f5ef"
-         style="width:100%;border-collapse:collapse;background-color:#f5f5ef">
-    <tr><td align="center" class="outer-padding" style="padding:20px 12px">
+         width="100%" style="border-collapse:collapse;width:100%;background:#ffffff">
+    <tr><td align="center" style="padding:20px 16px;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-             width="100%" bgcolor="#ffffff"
-             style="width:100%;max-width:600px;border-collapse:collapse;background-color:#ffffff;">
-        <tr><td bgcolor="#eef3ec" class="inner-padding"
-                style="padding:26px 28px 23px;border-top:5px solid #176342;
-                       background-color:#eef3ec;">
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;
-                      line-height:19px;font-weight:700;letter-spacing:1.5px;
-                      color:#176342;">ALIYAABDULLAH.COM</div>
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;
-                      line-height:18px;font-weight:700;letter-spacing:1px;
-                      margin-top:12px;color:#4b6655;">{type_label}</div>
-          <div class="email-heading" style="font-family:Arial,Helvetica,sans-serif;
-                      font-size:27px;line-height:34px;font-weight:700;
-                      margin-top:5px;color:#172b20;">
-            New {esc(title.lower())}
-          </div>
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;
-                      line-height:21px;margin-top:9px;color:#435748;
-                      word-break:break-word;overflow-wrap:anywhere;">
-            Submitted by <strong>{esc(sub.name)}</strong>
+             width="100%" style="border-collapse:collapse;width:100%;max-width:600px;">
+        <tr><td style="padding:10px 0 14px;word-break:break-word;overflow-wrap:anywhere;">
+          <div style="font:400 16px/1.75 Arial,Helvetica,sans-serif;
+                      color:#202a22;word-break:break-word;overflow-wrap:anywhere;">
+            {message_html}
           </div>
         </td></tr>
-
-        <tr><td bgcolor="#ffffff" class="inner-padding"
-                style="padding:22px 28px 28px;background-color:#ffffff;">
-          <div style="font-family:Arial,Helvetica,sans-serif;
-                      font-size:15px;line-height:23px;font-weight:700;
-                      color:#172b20;">Submission details</div>
-          <table role="presentation" cellpadding="0" cellspacing="0"
-                 border="0" width="100%" style="width:100%;border-collapse:collapse;">
-            {field_rows}
-          </table>
-
-          <div style="font-family:Arial,Helvetica,sans-serif;
-                      font-size:15px;line-height:23px;font-weight:700;
-                      margin-top:25px;margin-bottom:10px;color:#172b20;">
-            Message
+        <tr><td style="padding:7px 0 5px;">
+          <div style="font:600 15px/1.5 Arial,Helvetica,sans-serif;color:#263a2c;">
+            &mdash; {name_html}
           </div>
-          <table role="presentation" cellpadding="0" cellspacing="0"
-                 border="0" width="100%" bgcolor="#f0f3ed"
-                 style="width:100%;border-collapse:collapse;background-color:#f0f3ed;">
-            <tr><td style="padding:16px;font-family:Arial,Helvetica,sans-serif;
-                           font-size:15px;line-height:24px;color:#21352a;
-                           word-break:break-word;overflow-wrap:anywhere;">
-              {message_html}
-            </td></tr>
-          </table>
-
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-                 width="100%" style="width:100%;margin-top:19px;border-collapse:collapse;">
-            <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;
-                           line-height:19px;color:#536159;">
-              Received {esc(received)}
-            </td></tr>
-            {page_html}
-          </table>
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;
-                      line-height:21px;margin-top:20px;color:#31513d;">
-            Tap <strong>Reply</strong> to respond to {esc(sub.name)}.
+          <div style="font:400 13px/1.5 Arial,Helvetica,sans-serif;
+                      color:#526458;word-break:break-word;overflow-wrap:anywhere;">
+            <a href="mailto:{contact_email}" style="color:#326c4e;text-decoration:none;">
+              {contact_email}
+            </a>
           </div>
         </td></tr>
-
-        <tr><td align="center" bgcolor="#f5f5ef"
-                style="padding:18px 12px;font-family:Arial,Helvetica,sans-serif;
-                       font-size:12px;line-height:19px;color:#536159;
-                       word-break:break-word;overflow-wrap:anywhere;">
-          {esc(SITE_NAME)} &middot; {esc(support_email)}
+        {details_html}
+        <tr><td style="border-top:1px solid #e6eae5;padding:17px 0 0;">
+          <div style="font:400 11px/1.65 Arial,Helvetica,sans-serif;color:#7a817b;">
+            Sent via {esc(SITE_NAME)} &middot; {esc(now)}<br>
+            Reply to this email to respond to {name_html}.
+          </div>
         </td></tr>
       </table>
     </td></tr>
@@ -385,12 +348,13 @@ def build_message(
 </html>"""
 
     msg = EmailMessage()
-    # Display ONLY the visitor's name. The email address itself must still
-    # be the authenticated Gmail sender (or a verified send-as alias).
-    msg["From"] = formataddr((sub.name, sender))
+    # The display name is dynamic; the actual address is the Gmail-authorized
+    # sender/alias. An arbitrary website visitor's email cannot go in From.
+    msg["From"] = formataddr((name, sender))
     msg["To"] = recipient
-    msg["Reply-To"] = formataddr((sub.name, str(sub.email)))
+    msg["Reply-To"] = formataddr((name, visitor_email))
     msg["Subject"] = email_subject(sub)
+    msg["X-Website-Form"] = "quote" if sub.form_type == "quote" else "contact"
     msg.set_content("\n".join(text_lines))
     msg.add_alternative(html_body, subtype="html")
     return msg

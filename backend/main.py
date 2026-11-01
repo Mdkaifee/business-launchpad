@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import base64
 import html
-import hashlib
 import logging
 import os
 import re
@@ -33,7 +32,6 @@ from datetime import datetime, timezone
 from email.message import EmailMessage
 from email.utils import formataddr
 from typing import Literal, Optional
-from urllib.parse import quote
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
@@ -47,7 +45,7 @@ SITE_NAME = "aliyaabdullah.com"
 # All submissions are delivered to this one inbox, regardless of which form.
 OWNER_EMAIL = "aliaabdullah1211@gmail.com"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
-GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users"
+GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
 
 RATE_LIMIT_MAX = 5
 RATE_LIMIT_WINDOW_SECONDS = 10 * 60
@@ -74,7 +72,7 @@ def split_csv(value: str) -> list[str]:
 
 app = FastAPI(
     title=f"{SITE_NAME} forms API",
-    version="1.6.0",
+    version="1.5.0",
     docs_url=None,
     redoc_url=None,
 )
@@ -384,9 +382,7 @@ def encode_raw(msg: EmailMessage) -> str:
 # Gmail API
 # --------------------------------------------------------------------------- #
 
-_token_cache: dict[str, float | str] = {
-    "value": "", "expires_at": 0.0, "credential_tag": ""
-}
+_token_cache: dict[str, float | str] = {"value": "", "expires_at": 0.0}
 
 
 class GmailConfigError(RuntimeError):
@@ -403,40 +399,11 @@ def gmail_settings() -> dict[str, str]:
     missing = [name for name, value in settings.items() if not value]
     if missing:
         raise GmailConfigError(f"Missing Gmail settings: {', '.join(missing)}")
-    if settings["sender"].casefold() == OWNER_EMAIL.casefold():
-        raise GmailConfigError(
-            "Sending and receiving account are identical; refusing to self-send. "
-            "Use a different OAuth-authorized sending account."
-        )
-    if any(c in settings["sender"] for c in "\r\n ") or "@" not in settings["sender"]:
-        raise GmailConfigError("Invalid GMAIL_SENDER_EMAIL")
     return settings
 
 
-def gmail_send_url(sender: str) -> str:
-    """Address the configured mailbox explicitly, not the token's implicit 'me'.
-
-    This does NOT grant new access: Google will reject a refresh token that
-    is not authorized to send as this mailbox.
-    """
-    return f"{GMAIL_API_BASE}/{quote(sender, safe='@')}/messages/send"
-
-
-def credential_tag(settings: dict[str, str]) -> str:
-    """Invalidate access-token cache when Render credentials are changed."""
-    material = "\0".join(
-        settings[k] for k in ("client_id", "client_secret", "refresh_token")
-    )
-    return hashlib.sha256(material.encode("utf-8")).hexdigest()
-
-
 async def get_access_token(client: httpx.AsyncClient, settings: dict[str, str]) -> str:
-    tag = credential_tag(settings)
-    if (
-        _token_cache["value"]
-        and _token_cache["credential_tag"] == tag
-        and time.time() < float(_token_cache["expires_at"]) - 60
-    ):
+    if _token_cache["value"] and time.time() < float(_token_cache["expires_at"]) - 60:
         return str(_token_cache["value"])
 
     response = await client.post(
@@ -449,83 +416,37 @@ async def get_access_token(client: httpx.AsyncClient, settings: dict[str, str]) 
         },
     )
     if response.status_code != 200:
-        # Avoid logging secrets or the full response body.
-        error_code = "unknown"
-        try:
-            error_code = str(response.json().get("error", "unknown"))
-        except (ValueError, TypeError, AttributeError):
-            pass
-        log.error("Gmail OAuth refresh failed: HTTP %s, code %s", response.status_code, error_code)
+        log.error("Google token refresh failed [%s]: %s", response.status_code, response.text)
         raise HTTPException(
             status_code=502,
             detail="Email service is temporarily unavailable. Please try again later.",
         )
 
     data = response.json()
-    _token_cache.update({
-        "value": data["access_token"],
-        "expires_at": time.time() + int(data.get("expires_in", 3600)),
-        "credential_tag": tag,
-    })
-    return str(data["access_token"])
+    _token_cache["value"] = data["access_token"]
+    _token_cache["expires_at"] = time.time() + int(data.get("expires_in", 3600))
+    return data["access_token"]
 
 
 async def send_via_gmail(msg: EmailMessage, settings: dict[str, str]) -> None:
-    """Only allow sending from the configured sender mailbox.
-
-    If the token still belongs to the receiving account, the explicit userId
-    will be rejected by Google instead of silently sending as 'me'.
-    """
-    sender = settings["sender"]
-    if sender.casefold() == OWNER_EMAIL.casefold():
-        raise HTTPException(status_code=503, detail="Email sender is not configured correctly.")
-    url = gmail_send_url(sender)
-    body = {"raw": encode_raw(msg)}
-
-    try:
-        async with httpx.AsyncClient(timeout=20) as client:
+    async with httpx.AsyncClient(timeout=20) as client:
+        token = await get_access_token(client, settings)
+        response = await client.post(
+            GMAIL_SEND_URL,
+            headers={"Authorization": f"Bearer {token}"},
+            json={"raw": encode_raw(msg)},
+        )
+        if response.status_code == 401:
+            _token_cache["value"] = ""
             token = await get_access_token(client, settings)
             response = await client.post(
-                url,
+                GMAIL_SEND_URL,
                 headers={"Authorization": f"Bearer {token}"},
-                json=body,
+                json={"raw": encode_raw(msg)},
             )
-            if response.status_code == 401:
-                _token_cache["value"] = ""
-                token = await get_access_token(client, settings)
-                response = await client.post(
-                    url,
-                    headers={"Authorization": f"Bearer {token}"},
-                    json=body,
-                )
-    except httpx.RequestError:
-        log.exception("Gmail network error during message send")
-        raise HTTPException(
-            status_code=502,
-            detail="Email service is temporarily unavailable. Please try again later.",
-        ) from None
 
     if response.status_code >= 300:
-        error_code, error_message = "unknown", ""
-        try:
-            error_data = response.json().get("error", {})
-            if isinstance(error_data, dict):
-                error_code = str(error_data.get("status", error_data.get("code", "unknown")))
-                error_message = str(error_data.get("message", ""))[:220]
-            else:
-                error_code = str(error_data)[:80]
-        except (ValueError, TypeError, AttributeError):
-            pass
-        log.error(
-            "Gmail send failed for configured mailbox %s: HTTP %s (%s): %s",
-            sender, response.status_code, error_code, error_message,
-        )
-        if response.status_code in (400, 403):
-            raise HTTPException(
-                status_code=502,
-                detail=("Gmail rejected the configured sending account. "
-                        "Check that the OAuth refresh token belongs to that account."),
-            )
+        log.error("Gmail send failed [%s]: %s", response.status_code, response.text)
         raise HTTPException(
             status_code=502,
             detail="We couldn't send your message. Please try again later.",
@@ -577,8 +498,13 @@ async def submit(submission: Submission, request: Request):
             detail="The form service isn't configured yet. Please email us directly.",
         )
 
-    # Delivery address is fixed to the owner, regardless of NOTIFY_TO_EMAIL.
-    # gmail_settings rejects identical sender/receiver before any email is sent.
+    # Fixed destination: do not let a stale Render NOTIFY_TO_EMAIL send
+    # customer information to a different recipient.
+    if settings["sender"].casefold() == OWNER_EMAIL.casefold():
+        log.warning(
+            "Sender and recipient are the same Gmail account; inbox may show 'me'. "
+            "Authorize a separate sending Gmail account with a new refresh token."
+        )
 
     support_email = env("SUPPORT_EMAIL", "info@aliyaabdullah.com")
     msg = build_message(submission, settings["sender"], OWNER_EMAIL, support_email)

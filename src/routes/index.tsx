@@ -794,7 +794,13 @@ function CorporateLandingPage() {
                     <h3 className="text-[11px] font-bold tracking-[0.18em] uppercase">{item.title}</h3>
                     {item.lines.map((line) => (
                       <p key={line} className="mt-1 text-sm text-muted-foreground">
-                        {line}
+                        {line === CONTACT_EMAIL ? (
+                          <a href={`mailto:${CONTACT_EMAIL}`} className="transition hover:text-emerald">
+                            {line}
+                          </a>
+                        ) : (
+                          line
+                        )}
                       </p>
                     ))}
                   </div>
@@ -828,7 +834,11 @@ function CorporateLandingPage() {
               </p>
               <div className="mt-6 space-y-1 text-sm text-ink-muted">
                 <p>{CONTACT_PHONE}</p>
-                <p>{CONTACT_EMAIL}</p>
+                <p>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="transition hover:text-ink-foreground">
+                    {CONTACT_EMAIL}
+                  </a>
+                </p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-10 sm:grid-cols-4 lg:col-span-8">

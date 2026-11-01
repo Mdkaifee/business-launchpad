@@ -18,8 +18,8 @@ import {
 
 export const SITE_NAME = "aliyaabdullah.com";
 export const SITE_TAGLINE = "Global Trading · General Contracting · IT & AI Services";
-// Placeholder contact details — replace with the real ones.
 export const CONTACT_EMAIL = "info@aliyaabdullah.com";
+// Placeholder phone and address — replace with the real ones.
 export const CONTACT_PHONE = "+1 (800) 492-8820";
 export const CONTACT_ADDRESS = "Tower 4, Level 38, International Financial Centre, Dubai, UAE";
 

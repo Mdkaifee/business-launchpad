@@ -22,7 +22,7 @@ import {
   CASE_STUDIES,
   CONTACT_COUNTRY,
   CONTACT_EMAIL,
-  CONTACT_LOCATIONS,
+  CONTACT_LOCATIONS_LINE,
   CONTACT_PHONE,
   CONTACT_PHONE_HREF,
   SERVICE_VERTICALS,
@@ -787,7 +787,7 @@ function CorporateLandingPage() {
                 {
                   icon: MapPin,
                   title: "Offices",
-                  lines: [{ text: CONTACT_LOCATIONS.join(" · ") }, { text: CONTACT_COUNTRY }],
+                  lines: [{ text: CONTACT_LOCATIONS_LINE }, { text: CONTACT_COUNTRY }],
                 },
                 { icon: Phone, title: "Phone", lines: [{ text: CONTACT_PHONE, href: CONTACT_PHONE_HREF }] },
                 { icon: Mail, title: "Email", lines: [{ text: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` }] },
@@ -839,7 +839,7 @@ function CorporateLandingPage() {
                 One accountable team for international trading, general contracting and bespoke software engineering.
               </p>
               <div className="mt-6 space-y-1 text-sm text-ink-muted">
-                <p>{CONTACT_LOCATIONS.join(" · ")}, {CONTACT_COUNTRY}</p>
+                <p>{CONTACT_LOCATIONS_LINE}, {CONTACT_COUNTRY}</p>
                 <p>
                   <a href={CONTACT_PHONE_HREF} className="transition hover:text-ink-foreground">
                     {CONTACT_PHONE}

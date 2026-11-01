@@ -22,6 +22,8 @@ export const CONTACT_EMAIL = "info@aliyaabdullah.com";
 export const CONTACT_PHONE = "+966 54 105 4608";
 export const CONTACT_PHONE_HREF = "tel:+966541054608";
 export const CONTACT_LOCATIONS = ["Makkah Al-Mukarramah", "Jeddah", "Al Baha"];
+// Keeps each city on one line when the list wraps.
+export const CONTACT_LOCATIONS_LINE = CONTACT_LOCATIONS.map((city) => city.replace(/ /g, "\u00A0")).join(" · ");
 export const CONTACT_COUNTRY = "Saudi Arabia";
 
 export const VERTICAL_LABELS: Record<string, string> = {

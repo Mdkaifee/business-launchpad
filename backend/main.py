@@ -26,6 +26,7 @@ import base64
 import html
 import logging
 import os
+import re
 from pathlib import Path
 import smtplib
 import ssl
@@ -44,7 +45,7 @@ except ImportError:
 from collections import defaultdict, deque
 from datetime import datetime, timezone
 from email.message import EmailMessage
-from email.utils import formataddr
+from email.utils import formataddr, make_msgid
 from typing import Literal, Optional
 
 import httpx
@@ -59,6 +60,7 @@ SITE_NAME = "aliyaabdullah.com"
 # All submissions are delivered to this one inbox, regardless of which form.
 OWNER_EMAIL = "aliaabdullah1211@gmail.com"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
+TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo"
 GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
 
 RATE_LIMIT_MAX = 5
@@ -86,7 +88,7 @@ def split_csv(value: str) -> list[str]:
 
 app = FastAPI(
     title=f"{SITE_NAME} forms API",
-    version="1.5.0",
+    version="1.6.0",
     docs_url=None,
     redoc_url=None,
 )
@@ -206,9 +208,20 @@ def quote_service(sub: Submission) -> str:
 
 
 def email_subject(sub: Submission) -> str:
+    """"Contact message — <topic>" / "Quote request — <service>".
+
+    The visitor's name is NOT put in the subject: it is the From display name.
+    A topic is appended so different visitors' emails don't share one identical
+    subject (Gmail groups identical subjects into one conversation).
+    """
     title = FORM_TITLES[sub.form_type]
-    topic = f" — {sub.subject}" if sub.subject else ""
-    return f"{sub.name}: {title}{topic}"
+    if sub.form_type == "quote":
+        topic = quote_service(sub)
+    else:
+        topic = " ".join((sub.subject or "").split())[:150]
+    if not topic or topic.casefold() == title.casefold():
+        return title
+    return f"{title} — {topic}"
 
 
 def message_details(sub: Submission) -> list[tuple[str, str]]:
@@ -223,7 +236,7 @@ def message_details(sub: Submission) -> list[tuple[str, str]]:
         if service:
             details.append(("Service", service))
 
-    if sub.subject:
+    if sub.subject and sub.form_type == "quote":
         subject = sub.subject.strip()
         skip = {
             email_subject(sub).casefold(),
@@ -288,6 +301,7 @@ def build_message(
         "-----",
         f"Sent through {SITE_NAME} on {now}.",
         f"Reply to this email to contact {name} directly.",
+        f"Website support: {support_email}",
     ]
 
     esc = html.escape
@@ -355,7 +369,8 @@ def build_message(
         <tr><td style="border-top:1px solid #e6eae5;padding:17px 0 0;">
           <div style="font:400 11px/1.65 Arial,Helvetica,sans-serif;color:#7a817b;">
             Sent via {esc(SITE_NAME)} &middot; {esc(now)}<br>
-            Reply to this email to respond to {name_html}.
+            Reply to this email to respond to {name_html}.<br>
+            Website support: {esc(support_email)}
           </div>
         </td></tr>
       </table>
@@ -365,10 +380,14 @@ def build_message(
 </html>"""
 
     msg = EmailMessage()
+    # From = visitor's typed name as display name + the AUTHENTICATED sender
+    # address. Gmail only keeps a From address it can authenticate; the visitor's
+    # own address goes in Reply-To so pressing Reply reaches them.
     msg["From"] = formataddr((sub.name, sender))
-    msg["To"] = ", ".join(recipients)
+    msg["To"] = recipient
     msg["Reply-To"] = formataddr((sub.name, str(sub.email)))
     msg["Subject"] = email_subject(sub)
+    msg["Message-ID"] = make_msgid(domain=SITE_NAME)
     msg["X-Website-Form"] = "quote" if sub.form_type == "quote" else "contact"
     msg.set_content("\n".join(text_lines))
     msg.add_alternative(html_body, subtype="html")
@@ -486,16 +505,65 @@ async def root():
     return {"service": f"{SITE_NAME} forms API", "status": "ok"}
 
 
+def smtp_configured() -> bool:
+    # SMTP is opt-in: all three must be set. Note Render's free plan blocks
+    # outbound SMTP ports 25/465/587, so leave these unset there.
+    return bool(env("SMTP_HOST") and env("SMTP_USER") and env("SMTP_PASSWORD"))
+
+
 @app.get("/health")
 async def health():
-    if env("SMTP_HOST") and env("SMTP_USER"):
+    if smtp_configured():
         return {"status": "ok", "email_configured": True, "provider": "smtp"}
     try:
-        gmail_settings()
+        settings = gmail_settings()
         configured = True
+        separate = settings["sender"].casefold() != OWNER_EMAIL.casefold()
     except GmailConfigError:
         configured = False
-    return {"status": "ok", "email_configured": configured, "provider": "gmail_api"}
+        separate = None
+    return {
+        "status": "ok",
+        "email_configured": configured,
+        "provider": "gmail_api",
+        # False means Gmail will label every notification "me".
+        "sender_differs_from_inbox": separate,
+    }
+
+
+@app.get("/health/sender")
+async def health_sender():
+    """Check which Google account the refresh token really belongs to.
+
+    Returns booleans only, never tokens. The account email is only visible if
+    the refresh token was issued with the extra `email` scope.
+    """
+    try:
+        settings = gmail_settings()
+    except GmailConfigError:
+        return {"token_ok": False, "reason": "missing settings"}
+    async with httpx.AsyncClient(timeout=20) as client:
+        try:
+            token = await get_access_token(client, settings)
+        except HTTPException:
+            return {"token_ok": False, "reason": "refresh failed (see Render logs)"}
+        info = (await client.get(TOKENINFO_URL, params={"access_token": token})).json()
+    scopes = str(info.get("scope", "")).split()
+    token_email = str(info.get("email", ""))
+    return {
+        "token_ok": True,
+        "can_send": "https://www.googleapis.com/auth/gmail.send" in scopes
+        or "https://mail.google.com/" in scopes,
+        "client_id_matches": info.get("azp") == settings["client_id"],
+        "token_email_visible": bool(token_email),
+        "token_matches_sender": (
+            token_email.casefold() == settings["sender"].casefold() if token_email else None
+        ),
+        "token_is_inbox_account": (
+            token_email.casefold() == OWNER_EMAIL.casefold() if token_email else None
+        ),
+        "sender_differs_from_inbox": settings["sender"].casefold() != OWNER_EMAIL.casefold(),
+    }
 
 
 @app.post("/api/submit")
@@ -512,16 +580,15 @@ async def submit(submission: Submission, request: Request):
 
     # 1. Custom Domain SMTP (Hostinger / Google Workspace Relay) if configured
     smtp_host = env("SMTP_HOST")
-    if smtp_host:
+    if smtp_configured():
         smtp_user = env("SMTP_USER")
         smtp_pass = env("SMTP_PASSWORD")
         smtp_port = int(env("SMTP_PORT", "465"))
         from_email = env("SMTP_FROM_EMAIL", smtp_user or "info@aliyaabdullah.com")
-        recipients = split_csv(env("NOTIFY_TO_EMAIL", "aliaabdullah1211@gmail.com"))
         support_email = env("SUPPORT_EMAIL", "info@aliyaabdullah.com")
-        msg = build_message(submission, from_email, recipients, support_email)
+        msg = build_message(submission, from_email, OWNER_EMAIL, support_email)
         await send_via_smtp(msg, smtp_host, smtp_port, smtp_user, smtp_pass)
-        log.info("Sent %s submission via SMTP to %s", submission.form_type, ", ".join(recipients))
+        log.info("Sent %s submission via SMTP to owner inbox", submission.form_type)
         return {"ok": True}
 
     # 2. Fallback to Gmail API OAuth

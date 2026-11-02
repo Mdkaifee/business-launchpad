@@ -8,4 +8,5 @@
 - [x] Wire all site forms to that one endpoint
 - [x] Support email info@aliyaabdullah.com on the site
 - [x] Real phone number and office locations (Makkah, Jeddah, Al Baha)
-- [ ] Deploy backend on Render and set `VITE_API_URL` on the frontend (user, on Render)
+- [x] Fix backend crash (500 on every form) and sender-name handling
+- [ ] Create a separate sending Gmail account + refresh token and set it on Render (user, in Google Cloud / Render)

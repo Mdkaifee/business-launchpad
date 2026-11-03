@@ -26,6 +26,7 @@ import {
   CONTACT_PHONE,
   CONTACT_PHONE_HREF,
   SERVICE_VERTICALS,
+  COMPANY_NAME_AR,
   SITE_NAME,
   SITE_TAGLINE,
   WHY_CHOOSE_US_POINTS,
@@ -307,7 +308,16 @@ function CorporateLandingPage() {
             {SITE_TAGLINE}
           </div>
 
-          <h1 className="mt-8 max-w-5xl font-serif text-[clamp(3rem,8vw,7.25rem)] font-medium leading-[0.98] tracking-tight">
+          <p
+            lang="ar"
+            dir="rtl"
+            className="rise mt-6 w-fit font-arabic text-xl font-bold leading-snug text-ink-foreground sm:text-2xl"
+            style={{ animationDelay: "120ms" }}
+          >
+            {COMPANY_NAME_AR}
+          </p>
+
+          <h1 className="mt-6 max-w-5xl font-serif text-[clamp(3rem,8vw,7.25rem)] font-medium leading-[0.98] tracking-tight">
             <span className="rise block" style={{ animationDelay: "200ms" }}>
               One operator.
             </span>
@@ -835,7 +845,10 @@ function CorporateLandingPage() {
           <div className="grid gap-14 border-b border-ink-border pb-16 lg:grid-cols-12">
             <div className="lg:col-span-4">
               <img src="/brand/logo-full.webp" alt="aliyaabdullah logo" loading="lazy" className="w-56" />
-              <p className="mt-6 max-w-sm text-sm leading-relaxed text-ink-muted">
+              <p lang="ar" dir="rtl" className="mt-6 w-fit font-arabic text-lg font-bold leading-snug text-ink-foreground">
+                {COMPANY_NAME_AR}
+              </p>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-muted">
                 One accountable team for international trading, general contracting and bespoke software engineering.
               </p>
               <div className="mt-6 space-y-1 text-sm text-ink-muted">

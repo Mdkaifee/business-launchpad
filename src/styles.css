@@ -51,6 +51,7 @@
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Manrope", system-ui, sans-serif;
+  --font-arabic: "Tajawal", "Noto Kufi Arabic", system-ui, sans-serif;
 }
 
 :root {

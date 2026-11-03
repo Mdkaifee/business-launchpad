@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 
 export const SITE_NAME = "aliyaabdullah.com";
+/** Official registered company name — keep this exact spelling. */
+export const COMPANY_NAME_AR = "مؤسسة علياء عبدالله بسيس الغامدي للتجارة";
 export const SITE_TAGLINE = "Global Trading · General Contracting · IT & AI Services";
 export const CONTACT_EMAIL = "info@aliyaabdullah.com";
 export const CONTACT_PHONE = "+966 54 105 4608";

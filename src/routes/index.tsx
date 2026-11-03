@@ -311,7 +311,7 @@ function CorporateLandingPage() {
           <p
             lang="ar"
             dir="rtl"
-            className="rise mt-6 w-fit font-arabic text-xl font-bold leading-snug text-ink-foreground sm:text-2xl"
+            className="rise mt-6 w-fit font-arabic text-[1.05rem] font-bold leading-snug text-ink-foreground sm:text-2xl"
             style={{ animationDelay: "120ms" }}
           >
             {COMPANY_NAME_AR}
@@ -845,7 +845,7 @@ function CorporateLandingPage() {
           <div className="grid gap-14 border-b border-ink-border pb-16 lg:grid-cols-12">
             <div className="lg:col-span-4">
               <img src="/brand/logo-full.webp" alt="aliyaabdullah logo" loading="lazy" className="w-56" />
-              <p lang="ar" dir="rtl" className="mt-6 w-fit font-arabic text-lg font-bold leading-snug text-ink-foreground">
+              <p lang="ar" dir="rtl" className="mt-6 w-fit font-arabic text-base font-bold leading-snug text-ink-foreground sm:text-lg">
                 {COMPANY_NAME_AR}
               </p>
               <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-muted">

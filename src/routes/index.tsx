@@ -558,6 +558,69 @@ function CorporateLandingPage() {
         </div>
       </section>
 
+      {/* HOW WE WORK + INDUSTRIES */}
+      <section className="relative overflow-hidden bg-ink py-24 text-ink-foreground lg:py-32">
+        <div className={SHELL}>
+          <div data-reveal>
+            <SectionLabel>How we work</SectionLabel>
+            <h2 className="mt-4 font-serif text-4xl font-medium sm:text-6xl">
+              Four steps, <span className="text-brand-shimmer">one accountable team.</span>
+            </h2>
+          </div>
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["01", "Listen", "We meet you, understand the goal, budget and timeline, and visit the site if needed."],
+              ["02", "Plan", "You receive a clear scope, schedule and written quotation before any work begins."],
+              ["03", "Deliver", "Our team sources, builds or develops, with regular progress updates along the way."],
+              ["04", "Support", "After handover we stay available for maintenance, re-orders and future phases."],
+            ].map(([n, t, d], i) => (
+              <div key={n} data-reveal style={delay(i * 100)} className="rounded-2xl border border-ink-border bg-ink-soft p-7 transition duration-500 hover:-translate-y-1 hover:border-emerald/50">
+                <span className="font-serif text-5xl text-emerald-light">{n}</span>
+                <h3 className="mt-4 text-xl font-bold">{t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">{d}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-24" data-reveal>
+            <SectionLabel>Industries we serve</SectionLabel>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {["Construction & real estate", "Retail & wholesale", "Hospitality", "Healthcare", "Education", "Government suppliers", "Logistics", "Manufacturing", "Startups & SMEs", "Oil & gas services"].map((x) => (
+                <span key={x} className="rounded-full border border-ink-border bg-ink-soft px-5 py-2.5 text-sm font-medium transition hover:border-emerald hover:text-emerald-light">
+                  {x}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 lg:py-32">
+        <div className={cn(SHELL, "grid gap-12 lg:grid-cols-[1fr_1.5fr]")}>
+          <div data-reveal>
+            <SectionLabel>Questions</SectionLabel>
+            <h2 className="mt-4 font-serif text-4xl font-medium sm:text-6xl">Frequently asked.</h2>
+          </div>
+          <div className="divide-y divide-border rounded-2xl border border-border bg-card" data-reveal>
+            {[
+              ["Which cities do you work in?", "We are based in Makkah, Jeddah and Al Baha and serve clients across Saudi Arabia."],
+              ["Can one company handle trading, building and IT for me?", "Yes. That is our purpose: one contact and one contract for supplies, contracting work and technology."],
+              ["How do I get a price?", "Send a quote request below. We reply with questions or a written quotation."],
+              ["Do you work with small businesses?", "Yes. We work with individuals, small businesses and large companies alike."],
+            ].map(([q, a]) => (
+              <details key={q} className="group p-6">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                  {q}
+                  <span className="text-xl text-emerald transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ------------------------------------------------------------------ */}
       {/* ABOUT                                                              */}
       {/* ------------------------------------------------------------------ */}

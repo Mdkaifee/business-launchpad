@@ -1,20 +1,15 @@
 import { cn } from "@/lib/utils";
 
-/** The "AA" globe logo, cropped from the brand artwork, shown on its own dark tile. */
+/** The "AA" globe logo with its dark backdrop removed, so it sits on any surface. */
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <span
-      className={cn(
-        "relative inline-flex size-11 shrink-0 overflow-hidden rounded-xl bg-ink ring-1 ring-ink-border",
-        className,
-      )}
-    >
+    <span className={cn("relative inline-flex size-12 shrink-0", className)}>
       <img
-        src="/brand/logo-mark.png"
-        alt="aliyaabdullah.com logo"
+        src="/brand/logo-mark-clear.png"
+        alt="Aliya Abdullah logo"
         width={512}
         height={512}
-        className="size-full object-cover"
+        className="size-full object-contain drop-shadow-[0_4px_14px_color-mix(in_oklab,var(--emerald)_45%,transparent)]"
         loading="eager"
         decoding="async"
       />
@@ -25,14 +20,9 @@ export function LogoMark({ className }: { className?: string }) {
 export function Wordmark({ tone = "dark", className }: { tone?: "dark" | "light"; className?: string }) {
   return (
     <span className={cn("flex flex-col leading-none", className)}>
-      <span
-        className={cn(
-          "text-lg font-semibold tracking-tight sm:text-xl",
-          tone === "light" ? "text-ink-foreground" : "text-foreground",
-        )}
-      >
-        aliya<span className="text-emerald">abdullah</span>
-        <span className={tone === "light" ? "text-ink-muted" : "text-muted-foreground"}>.com</span>
+      <span className="text-lg font-extrabold tracking-tight sm:text-xl">
+        <span className={tone === "light" ? "text-silver" : "text-foreground"}>Aliya</span>{" "}
+        <span className={tone === "light" ? "text-emerald-light" : "text-emerald"}>Abdullah</span>
       </span>
       <span
         className={cn(

@@ -34,6 +34,7 @@ import {
 } from "../components/site/data";
 import { primaryButtonClass } from "../components/site/form-styles";
 import { LogoMark, Wordmark } from "../components/site/Logo";
+import { BackToTop, LanguageSwitcher } from "../components/site/SiteExtras";
 import { EMPTY_QUOTE, QuoteForm, type QuoteFormValues } from "../components/site/QuoteForm";
 import { useReveal } from "../hooks/use-reveal";
 import { cn } from "../lib/utils";
@@ -152,7 +153,7 @@ function FilterTabs({
     <div
       role="tablist"
       className={cn(
-        "flex flex-wrap gap-1.5 rounded-full border p-1.5",
+        "flex max-w-full gap-1.5 overflow-x-auto rounded-full border p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         tone === "light" ? "border-ink-border bg-ink-soft" : "border-border bg-card",
       )}
     >
@@ -163,7 +164,7 @@ function FilterTabs({
           aria-selected={active === tab.id}
           onClick={() => onChange(tab.id)}
           className={cn(
-            "rounded-full px-4 py-2 text-xs font-semibold transition duration-300",
+            "shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition duration-300",
             active === tab.id
               ? "bg-emerald text-accent-foreground shadow-glow"
               : tone === "light"
@@ -239,6 +240,8 @@ function CorporateLandingPage() {
             ))}
           </nav>
 
+          <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           <div className="hidden items-center gap-3 sm:flex">
             <button
               onClick={() => openQuote()}
@@ -257,6 +260,7 @@ function CorporateLandingPage() {
           >
             {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
+          </div>
         </div>
 
         {mobileMenuOpen && (
@@ -1034,6 +1038,7 @@ function CorporateLandingPage() {
           <QuoteForm idPrefix="modal-quote" values={quoteForm} onChange={setQuoteForm} onSent={() => setQuoteModalOpen(false)} />
         </DialogContent>
       </Dialog>
+      <BackToTop />
     </div>
   );
 }

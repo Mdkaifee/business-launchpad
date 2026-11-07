@@ -26,7 +26,7 @@ export function Wordmark({ tone = "dark", className }: { tone?: "dark" | "light"
       </span>
       <span
         className={cn(
-          "mt-1 text-[10px] font-semibold tracking-[0.28em] uppercase",
+          "mt-1 whitespace-nowrap text-[9px] font-semibold tracking-[0.2em] uppercase sm:text-[10px] sm:tracking-[0.28em]",
           tone === "light" ? "text-ink-muted" : "text-muted-foreground",
         )}
       >

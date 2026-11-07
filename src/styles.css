@@ -336,3 +336,14 @@ html {
     transition: none;
   }
 }
+
+/* Hide Google Translate's top bar and tooltips; our own switch replaces them. */
+.skiptranslate iframe,
+iframe.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}

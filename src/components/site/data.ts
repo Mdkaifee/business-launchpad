@@ -20,7 +20,7 @@ import {
 export const SITE_NAME = "aliyaabdullah.com";
 /** Official registered company name — keep this exact spelling. */
 export const COMPANY_NAME_AR = "مؤسسة علياء عبدالله بسيس الغامدي للتجارة";
-export const SITE_TAGLINE = "Global Trading · General Contracting · IT & AI Services";
+export const SITE_TAGLINE = "Trading · Contracting · HVAC · IT & AI Services";
 export const CONTACT_EMAIL = "info@aliyaabdullah.com";
 export const CONTACT_PHONE = "+966 54 105 4608";
 export const CONTACT_PHONE_HREF = "tel:+966541054608";
@@ -34,10 +34,10 @@ export const VERTICAL_LABELS: Record<string, string> = {
   contracting: "Contracting Services",
   it: "IT & AI Services",
   multi: "Multi-Vertical Turnkey",
-  hvac: "HVAC & Air-conditioning",
+  hvac: "HVAC Services",
 };
 
-export type ServiceVertical = "trading" | "contracting" | "it";
+export type ServiceVertical = "trading" | "contracting" | "hvac" | "it";
 
 export interface SubService {
   name: string;
@@ -118,7 +118,7 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
     title: "Contracting Services",
     headline: "Civil, Commercial & Structural Contracting",
     shortDesc:
-      "Turnkey general contracting, commercial construction, civil engineering support, and complete air-conditioning installation, repair and HVAC maintenance for all system types.",
+      "Turnkey general contracting, commercial construction, and civil engineering support for projects delivered with clear scope and site coordination.",
     fullDesc:
       "With rigorous safety records and certified project engineering superintendents, our contracting division constructs commercial pavilions, industrial campuses, and high-performance corporate infrastructure on budget and on schedule.",
     image: "/images/service-contracting.jpg",
@@ -129,13 +129,6 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
       { label: "Avg. Early Delivery", value: "14 Days" },
     ],
     subServices: [
-      {
-        name: "HVAC & Air-conditioning",
-        tagline: "New installations, repairs & maintenance for all AC types",
-        description: "Complete air-conditioning services for new and existing systems, including installation, servicing, fault diagnosis, repairs and preventive HVAC maintenance for residential, commercial and industrial properties.",
-        icon: Fan,
-        highlights: ["All air-conditioning system types", "New AC installations", "Preventive maintenance & repairs"],
-      },
       {
         name: "General Contracting",
         tagline: "Prime contractor leadership & site management",
@@ -171,14 +164,41 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
     ],
   },
   {
+    id: "hvac",
+    badge: "VERTICAL 03 / HVAC",
+    title: "HVAC Services",
+    headline: "Air-conditioning installation, repair & maintenance",
+    shortDesc:
+      "New air-conditioning installations and complete service for existing systems, including repairs, fault diagnosis and preventive HVAC maintenance across residential, commercial and industrial properties.",
+    fullDesc:
+      "Our HVAC department supports new and existing air-conditioning systems of all types, from installation and commissioning to diagnosis, repair, regular servicing and preventive maintenance.",
+    image: "/images/service-contracting.jpg",
+    icon: Fan,
+    metrics: [
+      { label: "AC System Types", value: "All types" },
+      { label: "New Installations", value: "Available" },
+      { label: "Maintenance", value: "Preventive" },
+    ],
+    subServices: [
+      {
+        name: "AC Installation & HVAC Maintenance",
+        tagline: "New systems, repairs and ongoing care",
+        description:
+          "Installation, servicing, fault diagnosis, repairs and preventive HVAC maintenance for new and existing air-conditioning systems across residential, commercial and industrial properties.",
+        icon: Fan,
+        highlights: ["All AC system types", "New installations & repairs", "Preventive maintenance"],
+      },
+    ],
+  },
+  {
     id: "it",
-    badge: "VERTICAL 03 / TECHNOLOGY",
-    title: "IT Services",
+    badge: "VERTICAL 04 / TECHNOLOGY",
+    title: "IT & AI Services",
     headline: "Custom Software, Mobile Apps & Enterprise AI",
     shortDesc:
-      "High-velocity digital engineering, cross-platform iOS & Android mobile apps, state-of-the-art UI/UX, bespoke software, and autonomous AI automation.",
+      "Websites, mobile apps, ERP platforms and custom software built around the way your business works, including live hospitality systems.",
     fullDesc:
-      "From high-throughput cloud architectures to proprietary machine learning pipelines, our engineering teams build software that drives market dominance. We modernize legacy workflows and build digital products that scale smoothly.",
+      "We design and build websites, mobile apps, ERP platforms and custom software. Our hospitality work includes a dynamic QR menu system that lets teams update table menus centrally and publish changes to guests in real time.",
     image: "/images/service-it.jpg",
     icon: Cpu,
     metrics: [
@@ -240,6 +260,21 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
 ];
 
 export const CASE_STUDIES = [
+  {
+    category: "it",
+    tag: "Hospitality Technology · Dynamic QR",
+    title: "Live QR Menu & Hospitality Management System",
+    desc: "A full-stack platform for creating and assigning live menus to restaurant tables. Guests scan a permanent table QR code to browse an interactive menu with search, allergen filters and dietary badges. Staff can update dishes, prices or menus in the admin workspace, with changes appearing to guests without reprinting QR codes or refreshing their screens.",
+    image: "/images/service-it.jpg",
+    metrics: [
+      { label: "QR Codes", val: "Permanent" },
+      { label: "Menu Updates", val: "Live" },
+      { label: "Guest Access", val: "Mobile" },
+    ],
+    timeline: "Live demo",
+    demoUrl: "https://qr-menu-demo-9vhn.onrender.com/",
+    adminDemoUrl: "https://qr-menu-demo-9vhn.onrender.com/?demo=admin",
+  },
   {
     category: "trading",
     tag: "International Trade & Logistics",

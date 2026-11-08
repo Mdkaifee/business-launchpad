@@ -7,6 +7,7 @@ import {
   Clock,
   Cpu,
   HardHat,
+  Fan,
   Mail,
   MapPin,
   Menu,
@@ -40,9 +41,9 @@ import { useReveal } from "../hooks/use-reveal";
 import { cn } from "../lib/utils";
 
 const SHELL = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
-const PAGE_TITLE = "aliyaabdullah.com | Trading, Contracting & IT Services";
+const PAGE_TITLE = "aliyaabdullah.com | Trading, Contracting, HVAC & IT & AI Services";
 const PAGE_DESCRIPTION =
-  "aliyaabdullah.com — one accountable operator for global trading, general contracting, and enterprise IT & AI services.";
+  "aliyaabdullah.com — one accountable operator for global trading, general contracting, HVAC installation and maintenance, and enterprise IT & AI services.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -58,20 +59,22 @@ export const Route = createFileRoute("/")({
   component: CorporateLandingPage,
 });
 
-type Filter = "all" | "trading" | "contracting" | "it";
+type Filter = "all" | "trading" | "contracting" | "hvac" | "it";
 
 const SERVICE_TABS: { id: Filter; label: string }[] = [
-  { id: "all", label: "All (14)" },
-  { id: "trading", label: "Trading (4)" },
-  { id: "contracting", label: "Contracting (4)" },
-  { id: "it", label: "IT & AI (6)" },
+  { id: "all", label: "All services" },
+  { id: "trading", label: "Trading" },
+  { id: "contracting", label: "Contracting" },
+  { id: "hvac", label: "HVAC" },
+  { id: "it", label: "IT & AI Services" },
 ];
 
 const PROJECT_TABS: { id: Filter; label: string }[] = [
   { id: "all", label: "All work" },
   { id: "trading", label: "Trading" },
   { id: "contracting", label: "Contracting" },
-  { id: "it", label: "IT & AI" },
+  { id: "hvac", label: "HVAC" },
+  { id: "it", label: "IT & AI Services" },
 ];
 
 const NAV_LINKS = [
@@ -84,8 +87,9 @@ const NAV_LINKS = [
 
 const HERO_PILLARS = [
   { icon: Ship, title: "Trading", text: "Sourcing, import & export, distribution" },
-  { icon: HardHat, title: "Contracting", text: "Construction, project support, maintenance" },
-  { icon: Cpu, title: "IT & AI", text: "Web, mobile apps, software & automation" },
+  { icon: HardHat, title: "Contracting", text: "Construction, site and project delivery" },
+  { icon: Fan, title: "HVAC", text: "AC installation, repairs & maintenance" },
+  { icon: Cpu, title: "IT & AI Services", text: "Websites, mobile apps, ERP & custom systems" },
 ];
 
 const ALL_SUB_SERVICES = SERVICE_VERTICALS.flatMap((v) => v.subServices.map((s) => s.name));
@@ -351,7 +355,7 @@ function CorporateLandingPage() {
             </a>
           </div>
 
-          <div className="mt-16 grid gap-3 sm:grid-cols-3">
+          <div className="mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {HERO_PILLARS.map((pillar, i) => (
               <a
                 key={pillar.title}
@@ -500,6 +504,44 @@ function CorporateLandingPage() {
                 </article>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* HVAC SPECIALIST */}
+      <section id="hvac-specialist" className="relative overflow-hidden bg-ink py-20 text-ink-foreground lg:py-24">
+        <div className={cn(SHELL, "grid items-center gap-10 md:grid-cols-[minmax(16rem,0.8fr)_1.2fr]")}>
+          <div data-reveal className="relative mx-auto w-full max-w-sm overflow-hidden rounded-[2rem] border border-ink-border bg-ink-soft shadow-elegant">
+            <img
+              src="/images/aqeel.jpeg"
+              alt="Eng. Aqeel ur Rehman, HVAC specialist"
+              loading="lazy"
+              className="aspect-[4/5] size-full object-cover object-top"
+            />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink via-ink/70 to-transparent p-6 pt-16">
+              <p className="text-xs font-bold tracking-[0.2em] text-emerald-light uppercase">HVAC & Air-conditioning</p>
+              <p className="mt-2 font-serif text-2xl font-semibold">Eng. Aqeel ur Rehman</p>
+              <p className="mt-1 text-sm text-ink-muted">HVAC Department</p>
+            </div>
+          </div>
+          <div data-reveal>
+            <SectionLabel tone="light">Meet our specialist</SectionLabel>
+            <h2 className="mt-4 max-w-2xl font-serif text-4xl font-medium leading-tight sm:text-5xl">
+              Complete air-conditioning care, <span className="italic font-light text-brand-shimmer">from installation to upkeep.</span>
+            </h2>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink-muted">
+              Eng. Aqeel ur Rehman leads our HVAC department, supporting new AC installations and existing systems with servicing, fault diagnosis, repairs and preventive HVAC maintenance. We work across residential, commercial and industrial properties and AC system types.
+            </p>
+            <ul className="mt-7 grid gap-3 text-sm text-ink-foreground/90 sm:grid-cols-2">
+              {["New AC installation", "Servicing & fault diagnosis", "Repairs for all AC types", "Preventive HVAC maintenance"].map((item) => (
+                <li key={item} className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 shrink-0 text-emerald-light" /> {item}
+                </li>
+              ))}
+            </ul>
+            <a href="mailto:aqile@abdullah.com" className="mt-8 inline-flex items-center gap-2 rounded-full border border-ink-border bg-ink-soft px-5 py-3 text-sm font-semibold transition hover:border-emerald/60 hover:text-emerald-light">
+              <Mail className="size-4" /> aqile@abdullah.com <ArrowUpRight className="size-4" />
+            </a>
           </div>
         </div>
       </section>
@@ -789,6 +831,28 @@ function CorporateLandingPage() {
                       </div>
                     ))}
                   </div>
+                  {project.demoUrl && (
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-emerald px-4 py-2.5 text-xs font-bold text-accent-foreground transition hover:bg-emerald-deep"
+                      >
+                        Guest demo <ArrowUpRight className="size-3.5" />
+                      </a>
+                      {project.adminDemoUrl && (
+                        <a
+                          href={project.adminDemoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 text-xs font-semibold transition hover:border-emerald hover:text-emerald"
+                        >
+                          Admin workspace <ArrowUpRight className="size-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  )}
                   <button
                     onClick={() =>
                       openQuote({
@@ -916,7 +980,7 @@ function CorporateLandingPage() {
                 {COMPANY_NAME_AR}
               </p>
               <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-muted">
-                One accountable team for international trading, general contracting and bespoke software engineering.
+                One accountable team for trading, contracting, HVAC and IT &amp; AI services—from air-conditioning care to websites, mobile apps, ERP systems and AI solutions.
               </p>
               <div className="mt-6 space-y-1 text-sm text-ink-muted">
                 <p>{CONTACT_LOCATIONS_LINE}, {CONTACT_COUNTRY}</p>

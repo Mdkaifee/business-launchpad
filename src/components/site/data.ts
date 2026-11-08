@@ -63,7 +63,7 @@ export interface ServiceCardData {
 export const SERVICE_VERTICALS: ServiceCardData[] = [
   {
     id: "trading",
-    badge: "VERTICAL 01 / COMMERCE",
+    badge: "01",
     title: "Trading Services",
     headline: "Global Trade Flow & Strategic Supply Sourcing",
     shortDesc:
@@ -114,7 +114,7 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
   },
   {
     id: "contracting",
-    badge: "VERTICAL 02 / INFRASTRUCTURE",
+    badge: "02",
     title: "Contracting Services",
     headline: "Civil, Commercial & Structural Contracting",
     shortDesc:
@@ -165,7 +165,7 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
   },
   {
     id: "hvac",
-    badge: "VERTICAL 03 / HVAC",
+    badge: "03",
     title: "HVAC Services",
     headline: "Air-conditioning installation, repair & maintenance",
     shortDesc:
@@ -192,7 +192,7 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
   },
   {
     id: "it",
-    badge: "VERTICAL 04 / TECHNOLOGY",
+    badge: "04",
     title: "IT & AI Services",
     headline: "Custom Software, Mobile Apps & Enterprise AI",
     shortDesc:

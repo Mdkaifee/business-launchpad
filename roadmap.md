@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Replace unreliable automatic translation with full instant English/Arabic switching, excluding the logo
+- [ ] Add Eng. Aqeel ur rehman's portrait, department and email, and full HVAC service coverage
+
 - [x] Rename site to aliyaabdullah.com everywhere (was AL-MADAAR HOLDINGS)
 - [x] Redesign page: more beautiful, animated, attractive
 - [x] Background video behind "One operator. Every leg of the corporate journey."

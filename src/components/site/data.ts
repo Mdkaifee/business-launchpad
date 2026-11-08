@@ -6,6 +6,7 @@ import {
   Cpu,
   Globe,
   HardHat,
+  Fan,
   Laptop,
   ShieldCheck,
   Ship,
@@ -33,6 +34,7 @@ export const VERTICAL_LABELS: Record<string, string> = {
   contracting: "Contracting Services",
   it: "IT & AI Services",
   multi: "Multi-Vertical Turnkey",
+  hvac: "HVAC & Air-conditioning",
 };
 
 export type ServiceVertical = "trading" | "contracting" | "it";
@@ -116,7 +118,7 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
     title: "Contracting Services",
     headline: "Civil, Commercial & Structural Contracting",
     shortDesc:
-      "Turnkey general contracting, commercial facility construction, civil engineering support, and comprehensive structural asset maintenance.",
+      "Turnkey general contracting, commercial construction, civil engineering support, and complete air-conditioning installation, repair and HVAC maintenance for all system types.",
     fullDesc:
       "With rigorous safety records and certified project engineering superintendents, our contracting division constructs commercial pavilions, industrial campuses, and high-performance corporate infrastructure on budget and on schedule.",
     image: "/images/service-contracting.jpg",
@@ -127,6 +129,13 @@ export const SERVICE_VERTICALS: ServiceCardData[] = [
       { label: "Avg. Early Delivery", value: "14 Days" },
     ],
     subServices: [
+      {
+        name: "HVAC & Air-conditioning",
+        tagline: "New installations, repairs & maintenance for all AC types",
+        description: "Complete air-conditioning services for new and existing systems, including installation, servicing, fault diagnosis, repairs and preventive HVAC maintenance for residential, commercial and industrial properties.",
+        icon: Fan,
+        highlights: ["All air-conditioning system types", "New AC installations", "Preventive maintenance & repairs"],
+      },
       {
         name: "General Contracting",
         tagline: "Prime contractor leadership & site management",
